@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="styles.css" rel="stylesheet">
+</head>
+<body>
+    <div class="donation-section mt-5 p-4 border rounded bg-light">
+    <h4 class="mb-4">Support This Campaign</h4>
+    <form id="donation-form">
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label for="amount" class="form-label">Donation Amount (₦)</label>
+                <input type="number" class="form-control" id="amount" min="100" step="100" 
+                       placeholder="Enter amount" required>
+                <div class="form-text">Minimum donation: ₦100</div>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label for="email" class="form-label">Email Address</label>
+                <input type="email" class="form-control" id="email" 
+                       placeholder="your@email.com" required>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-success btn-lg w-100">
+            <i class="fas fa-heart me-2"></i>Donate Now
+        </button>
+    </form>
+</div>
+</body>
+</html>

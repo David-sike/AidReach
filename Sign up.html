@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>User Login</title>
+  <style>
+    body {
+      font-family: "Poppins", sans-serif;
+      background-color: #f6f6f6;
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .auth-container {
+      background: white;
+      width: 400px;
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 5px 20px rgba(0,0,0,.1);
+    }
+    h3 { text-align: center; color:#4A249D; margin-bottom: 25px; }
+    h2 { text-align: center; color:#4A249D; margin-bottom: 25px; }
+    label { display: block; font-size: 14px; margin-bottom: 6px; color: #333; }
+    input {
+      width: 95%; padding: 10px 12px; border: 1px solid #ccc; border-radius: 8px;
+      margin-bottom: 15px; outline: none; font-size: 15px;
+    }
+    input:focus { border-color: #6a4eff; }
+    button {
+      width: 101%; padding: 12px; border: none; background: #4A249D; color: #fff;
+      font-size: 16px; font-weight: 500; border-radius: 8px; cursor: pointer; transition: background .3s ease;
+    }
+    button:hover { background: #5b3cc4; }
+    p { text-align: center; margin-top: 15px; color: #555; font-size: 14px; }
+    .toggle-link { color: #6a4eff; font-weight: 600; cursor: pointer; text-decoration: underline; }
+    .fade { animation: fadeIn .4s ease-in-out; }
+    @keyframes fadeIn { from{opacity:0; transform:scale(.98)} to{opacity:1; transform:scale(1)} }
+    .msg { margin-top: 10px; font-size: 13px; text-align: center; min-height: 18px; }
+    .msg.error { color: #b00020; }
+    .msg.ok    { color: #0a7a28; }
+  </style>
+</head>
+<body>
+  <div class="auth-container">
+    <!-- SIGN UP FORM -->
+    <form id="signupForm" class="fade" autocomplete="on">
+      <h2>AidReach</h2>
+      <h3>Create Account</h3>
+
+      <label for="signupName">Full Name</label>
+      <input type="text" id="signupName" placeholder="Enter your name" required />
+
+      <label for="signupEmail">Email Address</label>
+      <input type="email" id="signupEmail" placeholder="Enter your email" required />
+
+      <label for="signupPassword">Password</label>
+      <input type="password" id="signupPassword" placeholder="Create a password" minlength="6" required />
+
+      <button type="submit" id="signUpBtn">Get Started</button>
+      <div id="signupMsg" class="msg"></div>
+
+      <p>Already have an account?
+        <span class="toggle-link" onclick="showLogin()">Sign In</span>
+      </p>
+    </form>
+
+    <!-- SIGN IN FORM -->
+    <form id="loginForm" class="fade" style="display:none" autocomplete="on">
+      <h2>AidReach</h2>
+      <h3>Welcome Back</h3>
+
+      <label for="loginEmail">Email Address</label>
+      <input type="email" id="loginEmail" placeholder="Enter your email" required />
+
+      <label for="loginPassword">Password</label>
+      <input type="password" id="loginPassword" placeholder="Enter your password" required />
+
+      <button type="submit" id="signInBtn">Sign In</button>
+      <div id="loginMsg" class="msg"></div>
+
+      <p>Don’t have an account?
+        <span class="toggle-link" onclick="showSignup()">Get Started</span>
+      </p>
+    </form>
+  </div>
+
+  <!-- Toggle helpers -->
+  <script>
+    function showLogin() {
+      document.getElementById("signupForm").style.display = "none";
+      const loginForm = document.getElementById("loginForm");
+      loginForm.style.display = "block";
+      loginForm.classList.add("fade");
+    }
+    function showSignup() {
+      document.getElementById("loginForm").style.display = "none";
+      const signupForm = document.getElementById("signupForm");
+      signupForm.style.display = "block";
+      signupForm.classList.add("fade");
+    }
+    
+    // URL parameter switch: ?mode=login | ?mode=signup
+    (function routeByMode(){
+      const params = new URLSearchParams(window.location.search);
+      const mode = (params.get("mode") || "signup").toLowerCase();
+      if (mode === "login") showLogin(); else showSignup();
+    })();
+
+  </script>
+
+  <!-- Firebase (v10 modular) -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
+    import {
+      getAuth, onAuthStateChanged, updateProfile,
+      createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut
+    } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
+    import {
+      getFirestore, doc, setDoc, serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
+
+
+    const firebaseConfig = {
+    apiKey: "AIzaSyDsEkQhydktiMdyjexvIquKnWhIsACkEFk",
+    authDomain: "crowdfunding-project-bb723.firebaseapp.com",
+    projectId: "crowdfunding-project-bb723",
+    storageBucket: "crowdfunding-project-bb723.firebasestorage.app",
+    messagingSenderId: "614354054717",
+    appId: "1:614354054717:web:004107096ad21590904454",
+    measurementId: "G-M7R86VZPV1"
+    };
+
+    // Init
+    const app  = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db   = getFirestore(app);
+
+    // If already signed-in and user opens the auth page, send them home
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        // Optional: keep them here if they just logged out and came back; otherwise:
+        // window.location.href = "Home.html";
+      }
+    });
+
+    // Helpers
+    function setMsg(el, text, ok=false) {
+      el.textContent = text || "";
+      el.className = "msg " + (ok ? "ok" : (text ? "error" : ""));
+    }
+    function startLoading(btn) {
+      btn.dataset.prev = btn.textContent;
+      btn.disabled = true;
+      btn.textContent = "Please wait…";
+    }
+    function stopLoading(btn) {
+      btn.disabled = false;
+      btn.textContent = btn.dataset.prev || btn.textContent;
+    }
+
+    // SIGN UP
+    const signupForm = document.getElementById("signupForm");
+    const signupMsg  = document.getElementById("signupMsg");
+    const signUpBtn  = document.getElementById("signUpBtn");
+
+    signupForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      setMsg(signupMsg, "");
+      startLoading(signUpBtn);
+
+      const name  = document.getElementById("signupName").value.trim();
+      const email = document.getElementById("signupEmail").value.trim();
+      const pass  = document.getElementById("signupPassword").value;
+
+      if (!name || !email || pass.length < 6) {
+        setMsg(signupMsg, "Fill all fields (password ≥ 6).");
+        stopLoading(signUpBtn);
+        return;
+      }
+
+      try {
+        const cred = await createUserWithEmailAndPassword(auth, email, pass);
+        await updateProfile(cred.user, { displayName: name });
+
+        // Optional: store profile in Firestore
+        await setDoc(doc(db, "users", cred.user.uid), {
+          uid: cred.user.uid,
+          name,
+          email,
+          photoURL: cred.user.photoURL || null,
+          createdAt: serverTimestamp()
+        }, { merge: true });
+
+        setMsg(signupMsg, "Account created! Redirecting…", true);
+        window.location.href = "Home.html";
+      } catch (err) {
+        setMsg(signupMsg, err.message || "Sign up failed");
+      } finally {
+        stopLoading(signUpBtn);
+      }
+    });
+
+    // SIGN IN
+    const loginForm = document.getElementById("loginForm");
+    const loginMsg  = document.getElementById("loginMsg");
+    const signInBtn = document.getElementById("signInBtn");
+
+    loginForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      setMsg(loginMsg, "");
+      startLoading(signInBtn);
+
+      const email = document.getElementById("loginEmail").value.trim();
+      const pass  = document.getElementById("loginPassword").value;
+
+      try {
+        await signInWithEmailAndPassword(auth, email, pass);
+        setMsg(loginMsg, "Signed in! Redirecting…", true);
+        window.location.href = "Home.html";
+      } catch (err) {
+        setMsg(loginMsg, err.message || "Sign in failed");
+      } finally {
+        stopLoading(signInBtn);
+      }
+    });
+
+    // (Optional) expose a quick signOut you can call from navbar:
+    window.firebaseSignOut = () => signOut(auth);
+
+
+  // Simple admin login check
+  document.getElementById("loginForm").addEventListener("submit", function (e) {
+    e.preventDefault();
+
+    const email = document.getElementById("loginEmail").value.trim();
+    const password = document.getElementById("loginPassword").value.trim();
+
+    // Check if it matches the admin credentials
+    if (email === "admin@gmail.com" && password === "notadmin") {
+      alert("Welcome Admin!");
+      window.location.href ="admin.html"; // Redirect to Admin Dashboard
+    } else {
+      // fallback to normal Firebase login if needed
+      // your firebase code already handles this part
+      console.log("Regular user login attempt");
+    }
+  });
+
+
+  </script>
+  <script type="module" src="firebase.js"></script>
+
+</body>
+</html>

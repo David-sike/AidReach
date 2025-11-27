@@ -1,0 +1,356 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>AidReach – Admin Dashboard (Static)</title>
+<style>
+  :root{
+    --bg:#f4f6f8;
+    --panel:#ffffff;
+    --ink:#0b2239;
+    --muted:#6b7c8f;
+    --brand:#3b82f6;
+    --accent:#edf2ff;
+    --card:#ffffff;
+    --green:#22c55e;
+    --red:#ef4444;
+    --amber:#f59e0b;
+    --shadow:0 10px 22px rgba(20,30,55,.10);
+    --radius:18px;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol";
+  }
+
+  /* Layout */
+  .layout{
+    min-height:100svh;
+    display:grid;
+    grid-template-columns: 260px 1fr;
+    gap:24px;
+  }
+  @media (max-width: 980px){
+    .layout{ grid-template-columns: 1fr }
+    aside{ position:sticky; top:0; z-index:5 }
+  }
+
+  /* Sidebar */
+  aside{
+    background:#fff;
+    padding:18px 14px;
+    box-shadow:var(--shadow);
+  }
+  .brand{
+    display:flex; align-items:center; gap:10px;
+    padding:12px 10px 18px;
+    font-weight:800; letter-spacing:.2px;
+    color:var(--brand);
+    font-size:20px;
+  }
+  .brand .dot{ width:12px; height:12px; border-radius:50%; background:var(--brand) }
+  nav{ margin-top:8px }
+  .nav-item{
+    display:flex; align-items:center; gap:12px;
+    padding:12px 14px;
+    border-radius:12px;
+    color:var(--ink);
+    text-decoration:none;
+    margin:6px 6px;
+  }
+  .nav-item:hover{ background:#f2f6ff }
+  .nav-item.active{ background:#e8efff; color:#1e40af; font-weight:700 }
+  .nav-icon{
+    width:18px; height:18px; display:inline-grid; place-items:center;
+    color:#476287;
+  }
+  .sidebar-footer{ margin-top: 145vh; padding-top:16px; border-top:1px dashed #e2e8f0 }
+
+  /* Main */
+  main{ padding:18px 18px 32px }
+  .topbar{
+    background:var(--panel); border-radius:14px; padding:10px 16px;
+    display:flex; align-items:center; justify-content:space-between;
+    box-shadow:var(--shadow); margin-bottom:18px;
+  }
+  .tb-left{ font-weight:800; font-size:18px; color:#2a3a4f; opacity:.9 }
+  .tb-right{ display:flex; align-items:center; gap:16px; color:var(--muted) }
+  .lang{ display:flex; align-items:center; gap:8px; padding:8px 10px; border-radius:10px; background:#f1f5f9 }
+  .avatar{
+    width:34px; height:34px; border-radius:50%;
+    background:linear-gradient(135deg,#fda4af,#a78bfa);
+  }
+  .profile{ display:flex; align-items:center; gap:10px }
+  .profile small{ display:block; font-size:12px; color:var(--muted) }
+
+  .content{
+    display:grid;
+    grid-template-columns: 1fr;
+    gap:18px;
+  }
+
+  /* Stat cards */
+  .stats{
+    display:grid;
+    grid-template-columns: repeat(4, minmax(180px,1fr));
+    gap:16px;
+  }
+  @media (max-width: 1100px){ .stats{ grid-template-columns: repeat(2,1fr) } }
+  @media (max-width: 600px){ .stats{ grid-template-columns: 1fr } }
+
+  .card{
+    background:var(--card); border-radius:16px; padding:16px;
+    box-shadow:var(--shadow);
+  }
+  .stat{
+    display:grid; grid-template-columns: 1fr auto; row-gap:8px; column-gap:10px;
+  }
+  .stat h4{ margin:0; font-size:13px; color:var(--muted); font-weight:700 }
+  .stat .icon{
+    width:36px; height:36px; border-radius:12px; display:grid; place-items:center;
+    background:#f1f5f9;
+  }
+  .stat .value{ font-size:28px; font-weight:800; letter-spacing:.3px }
+  .delta{ font-size:12px; display:flex; align-items:center; gap:6px; }
+  .delta.up{ color:var(--green) }
+  .delta.down{ color:var(--red) }
+
+  /* Donation Details (Chart) */
+  .panel-title{ font-weight:800; margin-bottom:10px }
+  .chart-wrap{
+    background:var(--panel); border-radius:16px; box-shadow:var(--shadow);
+    padding:16px;
+  }
+  .chart-bar{
+    background:linear-gradient(180deg,#f8fbff,#fff);
+    border:1px solid #eef2f7;
+    border-radius:14px; padding:12px;
+  }
+  .chart-head{
+    display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;
+    color:var(--muted); font-size:14px;
+  }
+  .select{
+    padding:6px 10px; border-radius:10px; border:1px solid #e5e9f2; background:#fff; color:#334155;
+  }
+
+  /* Recent Donations */
+  .table-wrap{
+    background:var(--panel); border-radius:16px; box-shadow:var(--shadow);
+    padding:16px;
+  }
+  table{
+    width:100%;
+    border-collapse:separate;
+    border-spacing:0 8px;
+  }
+  thead th{
+    text-align:left; font-size:12px; color:var(--muted); font-weight:800; padding:10px 12px;
+  }
+  tbody td{
+    background:#fff; padding:14px 12px; font-size:14px;
+    border-top:1px solid #eef2f7; border-bottom:1px solid #eef2f7;
+  }
+  tbody tr td:first-child{ border-left:1px solid #eef2f7; border-top-left-radius:10px; border-bottom-left-radius:10px }
+  tbody tr td:last-child{ border-right:1px solid #eef2f7; border-top-right-radius:10px; border-bottom-right-radius:10px }
+  .status-pill{
+    padding:8px 12px; border-radius:999px; font-weight:700; font-size:12px;
+    background:#e8f7ee; color:#0f9d58; display:inline-block;
+  }
+  .amount{ font-weight:800 }
+</style>
+</head>
+<body>
+
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <aside>
+    <div class="brand"><span class="dot"></span> AidReach</div>
+
+    <nav>
+      <a class="nav-item active" href="#">
+        <span class="nav-icon">📊</span> <span>Dashboard</span>
+      </a>
+      <a class="nav-item" href="adminCampaigns.html"><span class="nav-icon">🧾</span> Campaigns</a>
+      <a class="nav-item" href="users.html"><span class="nav-icon">👥</span> Users</a>
+      
+    </nav>
+
+    <div class="sidebar-footer">
+      <a class="nav-item" href="#"><span class="nav-icon">⚙️</span> Settings</a>
+      <a class="nav-item" href="Home.html" id="logout"><span class="nav-icon">⏻</span> Logout</a>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main>
+    <div class="topbar">
+      <div class="tb-left">Dashboard</div>
+      <div class="tb-right">
+        <div class="lang">🇬🇧 English ▾</div>
+        <div class="profile">
+          <div class="avatar"></div>
+          <div>
+            <strong>Moni Roy</strong>
+            <small>Admin</small>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <section class="content">
+      <!-- Stats row -->
+      <div class="stats">
+        <div class="card stat">
+          <h4>Total User</h4>
+          <div class="icon">👤</div>
+          <div class="value">40,689</div>
+          <div class="delta up">▲ 8.5% Up from yesterday</div>
+        </div>
+
+        <div class="card stat">
+          <h4>Total Donations</h4>
+          <div class="icon">🧺</div>
+          <div class="value">10,293</div>
+          <div class="delta up">▲ 1.3% Up from past week</div>
+        </div>
+
+        <div class="card stat">
+          <h4>Total Campaigns</h4>
+          <div class="icon">📈</div>
+          <div class="value">9,000</div>
+          <div class="delta down">▼ 4.3% Down from yesterday</div>
+        </div>
+
+        <div class="card stat">
+          <h4>Pending Campaigns</h4>
+          <div class="icon">⏱️</div>
+          <div class="value">2,040</div>
+          <div class="delta up">▲ 1.8% Up from yesterday</div>
+        </div>
+      </div>
+
+      <!-- Donation details -->
+      <div class="chart-wrap">
+        <div class="panel-title">Donation Details</div>
+        <div class="chart-bar">
+          <div class="chart-head">
+            <div>Performance (October)</div>
+            <select class="select" aria-label="Month">
+              <option>October</option>
+              <option>September</option>
+              <option>August</option>
+            </select>
+          </div>
+
+          <!-- Simple static SVG area/line to resemble screenshot -->
+          <svg viewBox="0 0 900 240" width="100%" height="240" role="img" aria-label="Static donation trend">
+            <defs>
+              <linearGradient id="grad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#cfe1ff" stop-opacity="0.8"/>
+                <stop offset="100%" stop-color="#cfe1ff" stop-opacity="0.15"/>
+              </linearGradient>
+            </defs>
+            <!-- Area -->
+            <path d="M0,190
+                     L50,170 L100,150 L140,160 L180,120 L220,180 L260,150 L300,170
+                     L340,110 L380,200 L420,130 L460,145 L500,125 L540,200 L580,90
+                     L620,150 L660,140 L700,150 L740,145 L780,155 L820,150 L860,165
+                     L900,150 L900,240 L0,240 Z"
+                  fill="url(#grad)"/>
+            <!-- Line -->
+            <path d="M0,190
+                     L50,170 L100,150 L140,160 L180,120 L220,180 L260,150 L300,170
+                     L340,110 L380,200 L420,130 L460,145 L500,125 L540,200 L580,90
+                     L620,150 L660,140 L700,150 L740,145 L780,155 L820,150 L860,165 L900,150"
+                  fill="none" stroke="#5b8def" stroke-width="3"/>
+            <!-- Dots -->
+            <g fill="#5b8def">
+              <circle cx="50" cy="170" r="4"/><circle cx="100" cy="150" r="4"/>
+              <circle cx="180" cy="120" r="4"/><circle cx="260" cy="150" r="4"/>
+              <circle cx="340" cy="110" r="4"/><circle cx="420" cy="130" r="4"/>
+              <circle cx="500" cy="125" r="4"/><circle cx="580" cy="90" r="4"/>
+              <circle cx="660" cy="140" r="4"/><circle cx="740" cy="145" r="4"/>
+              <circle cx="820" cy="150" r="4"/>
+            </g>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Recent donations -->
+      <div class="table-wrap">
+        <div class="panel-title">Recent Donations</div>
+        <div class="chart-head" style="margin-top:-6px">
+          <div></div>
+          <select class="select"><option>October</option><option>September</option></select>
+        </div>
+        <div class="card" style="padding:0">
+          <table>
+            <thead>
+              <tr>
+                <th>Donor Name</th>
+                <th>Campaign</th>
+                <th>Date - Time</th>
+                <th>Amount</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Donor</td>
+                <td>Save Adamawa</td>
+                <td>12.09.2019 – 12:53 PM</td>
+                <td class="amount">₦34,295</td>
+                <td><span class="status-pill">Donated</span></td>
+              </tr>
+              <tr>
+                <td>Maryam A.</td>
+                <td>Food Relief Borno</td>
+                <td>12.09.2019 – 11:10 AM</td>
+                <td class="amount">₦18,000</td>
+                <td><span class="status-pill">Donated</span></td>
+              </tr>
+              <tr>
+                <td>Anonymous</td>
+                <td>Water for Yola</td>
+                <td>12.09.2019 – 09:22 AM</td>
+                <td class="amount">₦9,500</td>
+                <td><span class="status-pill">Donated</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </section>
+  </main>
+</div>
+<script>
+  // Logout handler
+  document.addEventListener("DOMContentLoaded", () => {
+    const logoutLinks = document.querySelectorAll(".nav-item[href='#'], .nav-item:has(span:contains('Logout'))");
+
+    // Fallback: look for text "Logout"
+    logoutLinks.forEach(link => {
+      if (link.textContent.toLowerCase().includes("logout")) {
+        link.addEventListener("click", (e) => {
+          e.preventDefault();
+          // Optionally clear any stored admin session
+          localStorage.removeItem("loggedInAdmin");
+          sessionStorage.removeItem("loggedInAdmin");
+
+          // Redirect to homepage (login/signup page)
+          window.location.href = "Sign up.html";
+        });
+      }
+    });
+  });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Campaign</title>
+  <link rel="stylesheet" href="styles.css"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    .btn-primary.w-100.mb-3:hover {
+      background-color: #804fe9 !important;
+      transition: background-color 0.1s;
+    }
+    .donation-input{
+      border: .5px solid rgb(220, 220, 220);
+      border-radius: 10px;
+    }
+    .progress-bar {
+      height: 8px;
+      background: #e5e7eb;
+      border-radius: 4px;
+      overflow: hidden;
+      margin-bottom: 12px;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      width: 0%;
+      background-color: #6b21a8;
+}
+
+/* Footer styles (cleaned and responsive) */
+.site-footer {
+  position:fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  background: #ffffff;
+  color: #000000;
+  padding:  0;
+  padding-top:  1rem;
+  text-align: center;
+  font-size: 15px;
+  box-shadow: 1px 1px 1px 2px rgba(0, 0, 0, 0.099);
+  z-index: 1000;
+}
+
+/* prevent page content from being hidden behind the fixed footer */
+body {
+  padding-bottom: 72px; /* adjust value if your footer height changes */
+}
+
+
+.footer-container {
+  max-width: 900px;
+  margin: 0 auto;
+  
+}
+.footer-links {
+  margin-bottom: 10px;
+}
+.footer-links a {
+  color: #000000;
+  text-decoration: none;
+  margin: 0 18px;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+.footer-links a:hover {
+  color: #804fe9;
+}
+.footer-copy {
+  font-size: 13px;
+  opacity: 0.7;
+  margin: 0;
+}
+.footer-links a {
+  position: relative;
+  padding: 0 16px;
+}
+
+.footer-links a:not(:last-child)::after {
+  justify-content: space-evenly;
+}
+
+/* small screens: stack footer items */
+@media (max-width: 576px) {
+  .footer-container {
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+  .footer-copy {
+    white-space: normal;
+    text-align: center;
+  }
+}
+
+.navbar .dropdown-toggle::after {
+  display: none !important;
+}
+
+</style>
+</head>
+
+<body>
+  <nav class="navbar" style="display: flex; align-items: center; justify-content: space-between;">
+      <img src="SDP/logo.png" alt="Logo" class="nav-logo" style="height:40px; margin-right: 15px; margin-left: 15px;">
+      <ul class="nav-links" id="nav-links" style="display: flex; justify-content: center; flex: 1; list-style: none; padding: 0; margin: 0;">
+          <li style="margin: 0 15px;"><a class="home">Home</a></li>
+          <li class="dropdown" style="margin: 0 15px;">
+              <a class="dropdown-toggle">Choose a cause</a>
+              <ul class="dropdown-menu">
+                  <li><a class="donate">Donate</a></li>
+                  <li><a class="yourDonations">Your donations</a></li>
+              </ul>
+          </li>
+          <li class="dropdown" style="margin: 0 15px;">
+              <a class="dropdown-toggle">Campaign</a>
+              <ul class="dropdown-menu">
+                  <li><a class="createCampaign">Create a campaign</a></li>
+                  <li><a class="yourCampaign">Your Campaigns</a></li>
+              </ul>
+          </li>
+      </ul>
+  </nav>
+    <div class="container py-5">
+      <h1 id="campaign-title" class="fw-bold text-center mb-4"></h1>
+      
+      <div class="row g-5">
+        <!-- Left column -->
+        <div class="col-lg-8">
+          <!-- Main Image -->
+          <img id="main-image" class="img-fluid rounded mb-3" alt="Main Image" style="border: .5px solid rgb(220, 220, 220);" />
+
+          <!-- Thumbnails -->
+          <div id="thumbnails" class="d-flex gap-2 overflow-auto mb-4"></div>
+
+          <!-- Overview and Challenge -->
+          <div class="p-4 bg-light rounded mb-4" style="border: .5px solid rgb(220, 220, 220);">
+            <div class="d-flex align-items-center gap-2">
+              <span class="text-muted">Date Launched:</span>
+              <span class="text-muted fw-semibold" id="startDate"></span>
+            </div>
+            <h5 class="fw-bold">Overview</h5>
+            <p id="overview"></p>
+            <h6 class="fw-bold">Challenge</h6>
+            <p id="challenge"></p>
+          </div>
+
+          <!-- Updates -->
+          <div class="p-4 bg-light rounded" style="border: 1px solid rgb(220, 220, 220);">
+            <h5 class="fw-bold">Updates</h5>
+            <p id="updates"></p>
+          </div>
+        </div>
+
+                <!-- Right column -->
+        <div class="col-lg-4">
+          <div class="donation-input" style="border-radius: 6px;">
+          <p class="donation prompt" style="align-items: center; justify-content: space-between; text-align: center; padding-top: .8rem;">Support This Campaign</p>
+            <div class="p-4 bg-light rounded-2 text-center">
+            <form id="donation-form">
+                <div class="mb-3">
+                <label for="donor-email" class="form-label" >Email Address</label>
+                <input type="email" id="donor-email" class="form-control" placeholder="your@email.com" required />
+              </div>
+          <div class="mb-3">
+            <label for="donation-amount" class="form-label">Donation Amount (₦)</label>
+            <input type="number" id="donation-amount" class="form-control" placeholder="Enter amount" min="1000" step="1000" required />
+          </div>
+              
+              <div class="d-flex justify-content:space-between align-items-center mb-3">
+                <div class="d-flex justify-content-between align-items-center w-100">
+                  <span id="donations" style="font-size:15px;">0 Donations</span>
+                  <p class="text-muted mb-0" style="font-size:15px;">
+                    <strong id="raised">₦0</strong> raised of <strong id="goal">₦0</strong> goal
+                  </p>
+                </div>
+              </div>
+              <input type="hidden" id="campaign-id" value="CAMPAIGN001" />
+              <div class="progress-bar" style="border-radius: 2px;">
+                <div id="progress-bar-fill" class="progress-bar-fill"></div>
+              </div>
+              <!-- Donation input -->
+               <input type="hidden" id="campaign-id" value="CAMPAIGN001" />
+              <button type="submit" class="btn btn-success w-100" style="background-color: #4A249D; border: none;">Donate Now</button>
+             
+          </button>
+            </form>
+
+            <div class="bg-white p-2 rounded-1 shadow-sm mt-2 mb -2">
+              <small class="text-muted" id="organizer"></small> <small class="text-muted" >Organized this campaign</small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+<br>
+<footer class="site-footer">
+<div class="footer-container">
+  <div class="footer-links">
+    <a href="#">Terms of Use</a>
+    <a href="#">Privacy Policy</a>
+    <a href="#">FAQs</a>
+  </div>
+  <p class="footer-copy">&copy; 2025 AidReach. All rights reserved.</p>
+</div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
+<script type="module" src="firebase.js"></script>
+<script type="module" src="navbar.js"></script>
+<script type="module" src="campaigns.js"></script>
+<script src="main.js"></script>
+<script src="https://js.paystack.co/v1/inline.js"></script>
+<script type="module" src="paystack.js"></script>
+<script src="footer.js"></script>
+</body>
+</html>

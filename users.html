@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>AidReach – Users (Static)</title>
+<style>
+  :root{
+    --bg:#f4f6f8;
+    --panel:#ffffff;
+    --ink:#0b2239;
+    --muted:#6b7c8f;
+    --brand:#3b82f6;
+    --shadow:0 10px 22px rgba(20,30,55,.10);
+    --radius:18px;
+    --row:#f7f9fc;
+    --line:#e8edf3;
+    --success:#daf5ea;
+    --success-ink:#0f9d58;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+  }
+
+  /* Layout */
+  .layout{
+    min-height:100svh;
+    display:grid;
+    grid-template-columns: 260px 1fr;
+    gap:24px;
+  }
+  @media (max-width: 980px){ .layout{ grid-template-columns: 1fr } }
+
+  /* Sidebar */
+  aside{
+    background:#fff;
+    padding:18px 14px;
+    box-shadow:var(--shadow);
+  }
+  .brand{
+    display:flex; align-items:center; gap:10px;
+    padding:12px 10px 18px;
+    font-weight:800; color:var(--brand);
+    font-size:20px;
+  }
+  .brand .dot{ width:12px; height:12px; border-radius:50%; background:var(--brand) }
+  nav{ margin-top:8px }
+  .nav-item{
+    display:flex; align-items:center; gap:12px;
+    padding:12px 14px; margin:6px 6px;
+    border-radius:12px; color:#22323f; text-decoration:none;
+  }
+  .nav-item:hover{ background:#f2f6ff }
+  .nav-item.active{ background:#e8efff; color:#1e40af; font-weight:700 }
+  .nav-icon{ width:18px; text-align:center; color:#476287 }
+
+
+      .sidebar-footer{ margin-top: 145vh; padding-top:16px; border-top:1px dashed #e2e8f0 }
+
+  /* Main */
+  main{ padding:18px 18px 32px }
+  .topbar{
+    background:var(--panel); border-radius:14px; padding:10px 16px;
+    display:flex; align-items:center; justify-content:space-between;
+    box-shadow:var(--shadow); margin-bottom:18px;
+  }
+  .left-bar{ display:flex; align-items:center; gap:14px; color:var(--muted) }
+  .search{
+    position:relative; width:min(520px, 55vw);
+    display:flex; align-items:center;
+    background:#f3f6fb; border:1px solid #e6ebf2;
+    border-radius:999px; padding:8px 12px; gap:8px;
+  }
+  .search input{
+    border:none; background:transparent; outline:none; width:100%;
+    font-size:14px; color:#203041;
+  }
+  .right-bar{ display:flex; align-items:center; gap:16px; color:var(--muted) }
+  .lang{ background:#f1f5f9; padding:6px 10px; border-radius:10px }
+  .avatar{ width:34px; height:34px; border-radius:50%; background:linear-gradient(135deg,#fda4af,#a78bfa) }
+  .profile{ display:flex; align-items:center; gap:10px }
+  .profile small{ display:block; font-size:12px; color:var(--muted) }
+
+  /* Page heading */
+  .page{
+    background:#eef3f9;
+    border-radius:16px;
+    box-shadow:var(--shadow);
+    padding:26px 24px;
+  }
+  .page h1{ margin:0 0 16px 0; font-size:28px }
+  .subsearch{
+    max-width:420px; background:#fff; border:1px solid var(--line);
+    border-radius:999px; display:flex; align-items:center; gap:8px;
+    padding:8px 12px; color:#7a8ba1;
+  }
+  .subsearch input{
+    border:none; outline:none; width:100%; background:transparent; color:#203041;
+  }
+
+  /* Users table */
+  .table{
+    margin-top:18px; background:#fff; border-radius:14px; overflow:hidden;
+    border:1px solid var(--line);
+  }
+  .thead, .row{
+    display:grid; grid-template-columns: 60px 1.2fr 1.4fr 160px;
+    align-items:center; gap:10px;
+  }
+  .thead{
+    background:#f3f6fb; color:var(--muted); font-weight:800; font-size:12px;
+    padding:12px 16px; border-bottom:1px solid var(--line);
+  }
+  .row{
+    padding:14px 16px; border-bottom:1px solid var(--line);
+    background:#fff;
+  }
+  .row:nth-child(even){ background:var(--row) }
+  .check{
+    width:18px; height:18px; border:1.8px solid #c7d2e1; border-radius:4px; display:inline-block;
+    background:#fff;
+  }
+  .status{
+    justify-self:start;
+    padding:6px 12px; border-radius:999px; font-size:12px; font-weight:700;
+    background:var(--success); color:var(--success-ink);
+  }
+
+  .foot{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:12px 8px; color:var(--muted); font-size:12px;
+  }
+  .pager{
+    display:flex; gap:8px;
+  }
+  .btn{
+    width:34px; height:28px; border-radius:8px; display:grid; place-items:center;
+    background:#fff; border:1px solid var(--line); cursor:pointer;
+  }
+  .btn:hover{ background:#f3f6fb }
+</style>
+</head>
+<body>
+
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <aside>
+    <div class="brand"><span class="dot"></span> AidReach</div>
+    <nav>
+      <a class="nav-item" href="admin.html"><span class="nav-icon">📊</span> Dashboard</a>
+      <a class="nav-item" href="adminCampaigns.html"><span class="nav-icon">🧾</span> Campaigns</a>
+      <a class="nav-item active" href="#"><span class="nav-icon">👥</span> Users</a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <a class="nav-item" href="#"><span class="nav-icon">⚙️</span> Settings</a>
+      <a class="nav-item" href="Home.html"><span class="nav-icon">⏻</span> Logout</a>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main>
+    <!-- Topbar -->
+    <div class="topbar">
+      <div class="left-bar">
+        <span style="font-size:20px">≡</span>
+        <div class="search">
+          <span>🔍</span>
+          <input placeholder="Search"/>
+        </div>
+      </div>
+      <div class="right-bar">
+        <span>🔔</span>
+        <div class="lang">🇬🇧 English ▾</div>
+        <div class="profile">
+          <div class="avatar"></div>
+          <div><strong>Moni Roy</strong><small>Admin</small></div>
+          <span>▾</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Users panel -->
+    <section class="page">
+      <h1>Users</h1>
+
+      <div class="subsearch">
+        <span>🔍</span>
+        <input placeholder="Search"/>
+      </div>
+
+      <div class="table" role="table" aria-label="Users list">
+        <div class="thead" role="row">
+          <div> </div>
+          <div>NAME</div>
+          <div>EMAIL</div>
+          <div>STATUS</div>
+        </div>
+
+        <!-- Rows -->
+        <div class="row">
+          <div><span class="check"></span></div>
+          <div>Jullu Jalal</div>
+          <div>John.doe@gmail.com</div>
+          <div><span class="status">Active</span></div>
+        </div>
+        <div class="row">
+          <div><span class="check"></span></div>
+          <div>Minerva Barnett</div>
+          <div>John.doe@gmail.com</div>
+          <div><span class="status">Active</span></div>
+        </div>
+        <div class="row">
+          <div><span class="check"></span></div>
+          <div>Peter Lewis</div>
+          <div>John.doe@gmail.com</div>
+          <div><span class="status">Active</span></div>
+        </div>
+        <div class="row">
+          <div><span class="check"></span></div>
+          <div>Anthony Briggs</div>
+          <div>John.doe@gmail.com</div>
+          <div><span class="status">Active</span></div>
+        </div>
+        <div class="row">
+          <div><span class="check"></span></div>
+          <div>Clifford Morgan</div>
+          <div>John.doe@gmail.com</div>
+          <div><span class="status">Active</span></div>
+        </div>
+        <div class="row">
+          <div><span class="check"></span></div>
+          <div>Cecilia Webster</div>
+          <div>John.doe@gmail.com</div>
+          <div><span class="status">Active</span></div>
+        </div>
+        <div class="row">
+          <div><span class="check"></span></div>
+          <div>Harvey Manning</div>
+          <div>John.doe@gmail.com</div>
+          <div><span class="status">Active</span></div>
+        </div>
+        <div class="row">
+          <div><span class="check"></span></div>
+          <div>Willie Blake</div>
+          <div>John.doe@gmail.com</div>
+          <div><span class="status">Active</span></div>
+        </div>
+        <div class="row">
+          <div><span class="check"></span></div>
+          <div>Minerva Barnett</div>
+          <div>John.doe@gmail.com</div>
+          <div><span class="status">Active</span></div>
+        </div>
+        <div class="row">
+          <div><span class="check"></span></div>
+          <div>Fanny Weaver</div>
+          <div>John.doe@gmail.com</div>
+          <div><span class="status">Active</span></div>
+        </div>
+        <div class="row">
+          <div><span class="check"></span></div>
+          <div>Olga Hogan</div>
+          <div>John.doe@gmail.com</div>
+          <div><span class="status">Active</span></div>
+        </div>
+        <div class="row">
+          <div><span class="check"></span></div>
+          <div>Lora Houston</div>
+          <div>John.doe@gmail.com</div>
+          <div><span class="status">Active</span></div>
+        </div>
+
+        <div class="foot">
+          <div>Showing 1–12 of 13</div>
+          <div class="pager">
+            <button class="btn" aria-label="Previous">〈</button>
+            <button class="btn" aria-label="Next">〉</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+</body>
+</html>
