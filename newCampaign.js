@@ -6,7 +6,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const firebaseExports = window.__FIREBASE__;
 
   if (!firebaseExports) {
-    console.error("❌ Firebase not initialized. Make sure firebase.js is loaded BEFORE newCampaign.js");
+    console.error("Firebase not initialized. Make sure firebase.js is loaded BEFORE newCampaign.js");
     return;
   }
 
@@ -50,7 +50,7 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
 
-      // Get form values by their IDs from New Campaign.html
+      // 1. Read form fields
       const organizer = document.getElementById("organizer").value.trim();
       const title = document.getElementById("title").value.trim();
       const location = document.getElementById("location").value.trim();
@@ -58,7 +58,9 @@ document.addEventListener("DOMContentLoaded", () => {
       const startDate = document.getElementById("start-date").value;
       const endDate = document.getElementById("end-date").value;
       const description = document.getElementById("description").value.trim();
+
       const coverInput = document.getElementById("cover-photo");
+      const additionalInput = document.getElementById("additional-photos");
 
       console.log("Form values:", {
         organizer,
@@ -79,9 +81,9 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
 
+      // 2. Upload cover image (single)
       let coverImageUrl = "";
 
-      // Upload cover image if provided
       if (coverInput && coverInput.files && coverInput.files[0]) {
         const file = coverInput.files[0];
         console.log("Uploading cover image:", file.name);
@@ -99,29 +101,57 @@ document.addEventListener("DOMContentLoaded", () => {
         console.warn("No cover image selected.");
       }
 
-      // Build the data object expected by createCampaign in firebase.js
+      // 3. Upload additional photos (multiple)
+      const additionalPhotoUrls = [];
+
+      if (additionalInput && additionalInput.files && additionalInput.files.length > 0) {
+        console.log(`Uploading ${additionalInput.files.length} additional photo(s)...`);
+
+        for (let i = 0; i < additionalInput.files.length; i++) {
+          const file = additionalInput.files[i];
+
+          const extraRef = storageRef(
+            storage,
+            `campaign-photos/${user.uid}/${Date.now()}-${i}-${file.name}`
+          );
+
+          const snap = await uploadBytes(extraRef, file);
+          const url = await getDownloadURL(snap.ref);
+          additionalPhotoUrls.push(url);
+
+          console.log(`✅ Uploaded extra photo ${i + 1}:`, url);
+        }
+
+        // Alert once all are done
+        alert(`Uploaded ${additionalPhotoUrls.length} additional photo(s).`);
+      } else {
+        console.log("No additional photos selected.");
+      }
+
+      // 4. Prepare campaign data for Firestore
       const campaignData = {
         title,
-        summary: description,     // mapped to "summary" field in Firestore
+        summary: description,
         goalAmount,
         coverImageUrl,
         location,
-        category: "",            // you can extend this later
+        accountNumber,           // you can extend later
         organizer,
         startDate,
-        endDate
+        endDate,
+        gallery: additionalPhotoUrls   // store all extra photos here
       };
 
       console.log("Sending campaignData to createCampaign:", campaignData);
 
-      // Save campaign in Firestore
+      // 5. Save campaign in Firestore
       const campaignId = await createCampaign(campaignData, user);
       console.log("✅ Campaign created with ID:", campaignId);
 
       alert("Campaign published successfully!");
 
-      // Reset form and redirect
       form.reset();
+
       if (submitBtn) {
         submitBtn.disabled = false;
         submitBtn.textContent = "PUBLISH CAMPAIGN";

@@ -1,6 +1,5 @@
 // ✅ Import the Firebase SDKs (v10.12.4 unified)
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
-import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-analytics.js";
 import {
   getAuth, onAuthStateChanged, signOut, createUserWithEmailAndPassword,
   signInWithEmailAndPassword
@@ -26,9 +25,8 @@ const firebaseConfig = {
 
 // ✅ Initialize Firebase core services
 const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
 const auth = getAuth(app);
-const db = getFirestore(app, "progress-bar");
+const db = getFirestore(app);
 const storage = getStorage(app);
 
 // ✅ Automatically create user doc if new user signs up
@@ -55,11 +53,12 @@ onAuthStateChanged(auth, async (user) => {
 // ✅ Function: Create new campaign
 export async function createCampaign(data, user) {
   if (!user) throw new Error("Not signed in");
+
   const campaignRef = await addDoc(collection(db, "campaigns"), {
     ownerId: user.uid,
     title: data.title,
     summary: data.summary,
-    goalAmount: Number(data.goalAmount),
+    goalAmount: Number(data.goalAmount) || 0,
     amountRaised: 0,
     donationCount: 0,
     coverImageUrl: data.coverImageUrl || "",
@@ -67,12 +66,17 @@ export async function createCampaign(data, user) {
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
     location: data.location || "",
-    category: data.category || "",
-    shareSlug: data.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").slice(0, 60)
+    accountNumber: data.accountNumber || "",
+    organizer: data.organizer || "",
+    startDate: data.startDate || "",
+    endDate: data.endDate || "",
+    gallery: data.gallery || []     // <<< new field
   });
-  console.log("✅ Campaign created:", campaignRef.id);
+
+  console.log("✅ [createCampaign] Campaign created with id:", campaignRef.id);
   return campaignRef.id;
 }
+
 
 // ✅ Function: Add a donation (called after Paystack payment)
 export async function addDonation(data) {
@@ -102,7 +106,7 @@ export async function addDonation(data) {
 
 // ✅ Export for reuse in all pages
 window.__FIREBASE__ = {
-  app, analytics, auth, db, storage,
+  app, auth, db, storage,
   onAuthStateChanged, signOut,
   serverTimestamp, doc, setDoc, getDoc, addDoc,
   updateDoc, increment, query, where, orderBy, limit, onSnapshot,
