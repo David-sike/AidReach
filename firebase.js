@@ -1,117 +1,88 @@
-// ✅ Import the Firebase SDKs (v10.12.4 unified)
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
-import {
-  getAuth, onAuthStateChanged, signOut, createUserWithEmailAndPassword,
-  signInWithEmailAndPassword
-} from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
-import {
-  getFirestore, serverTimestamp, doc, setDoc, getDoc, addDoc,
-  updateDoc, collection, query, where, orderBy, limit, onSnapshot, increment
-} from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
-import {
-  getStorage, ref as storageRef, uploadBytes, getDownloadURL
-} from "https://www.gstatic.com/firebasejs/10.12.4/firebase-storage.js";
+/**
+ * Firebase initialization and helper functions for the charity platform.
+ *
+ * This module configures the Firebase SDK and exposes convenience
+ * functions for interacting with Firestore. Keeping the Firebase
+ * configuration in a separate file isolates sensitive keys and makes
+ * it easy to update or swap environments (e.g. development vs
+ * production). The helper functions abstract away the low‑level API
+ * details so your pages only need to import and call them.
+ */
 
-// ✅ Firebase Config
+// Import the functions you need from the Firebase SDKs.
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  getDocs,
+  query,
+  orderBy,
+} from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+
+// TODO: Replace the following with your app's Firebase project configuration.
+// See: https://firebase.google.com/docs/web/learn-more#config-object
 const firebaseConfig = {
-  apiKey: "AIzaSyDsEkQhydktiMdyjexvIquKnWhIsACkEFk",
-  authDomain: "crowdfunding-project-bb723.firebaseapp.com",
-  projectId: "crowdfunding-project-bb723",
-  storageBucket: "crowdfunding-project-bb723.firebasestorage.app",
-  messagingSenderId: "614354054717",
-  appId: "1:614354054717:web:004107096ad21590904454",
-  measurementId: "G-M7R86VZPV1"
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_AUTH_DOMAIN",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_STORAGE_BUCKET",
+  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+  appId: "YOUR_APP_ID",
 };
 
-// ✅ Initialize Firebase core services
+// Initialize Firebase. This should only be done once in your app.
 const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
+
+// Initialize Firestore. Firestore provides a NoSQL document database.
 const db = getFirestore(app);
-const storage = getStorage(app);
 
-// ✅ Automatically create user doc if new user signs up
-onAuthStateChanged(auth, async (user) => {
-  if (user) {
-    const userRef = doc(db, "users", user.uid);
-    const userSnap = await getDoc(userRef);
-
-    if (!userSnap.exists()) {
-      await setDoc(userRef, {
-        displayName: user.displayName || "",
-        email: user.email,
-        photoURL: user.photoURL || "",
-        createdAt: serverTimestamp(),
-        role: "user",
-        campaignsCount: 0,
-        totalDonated: 0
-      });
-      console.log("✅ User document created!");
-    }
+/**
+ * Persist a new campaign in Firestore.
+ *
+ * @param {Object} campaignData An object containing the fields for the
+ *        campaign (e.g. title, description, targetAmount, startDate,
+ *        endDate, createdBy, imageUrl, etc.). Additional properties will be
+ *        stored as well; Firestore allows flexible schemas.
+ * @returns {Promise<string>} A promise that resolves with the new document ID
+ *          when the write completes.
+ */
+export async function addCampaign(campaignData) {
+  try {
+    // Add a new document with an automatically generated ID.
+    const docRef = await addDoc(collection(db, "campaigns"), campaignData);
+    return docRef.id;
+  } catch (error) {
+    console.error("Error adding campaign:", error);
+    throw error;
   }
-});
-
-// ✅ Function: Create new campaign
-export async function createCampaign(data, user) {
-  if (!user) throw new Error("Not signed in");
-
-  const campaignRef = await addDoc(collection(db, "campaigns"), {
-    ownerId: user.uid,
-    title: data.title,
-    summary: data.summary,
-    goalAmount: Number(data.goalAmount) || 0,
-    amountRaised: 0,
-    donationCount: 0,
-    coverImageUrl: data.coverImageUrl || "",
-    status: "LIVE",
-    createdAt: serverTimestamp(),
-    updatedAt: serverTimestamp(),
-    location: data.location || "",
-    accountNumber: data.accountNumber || "",
-    organizer: data.organizer || "",
-    startDate: data.startDate || "",
-    endDate: data.endDate || "",
-    gallery: data.gallery || []     // <<< new field
-  });
-
-  console.log("✅ [createCampaign] Campaign created with id:", campaignRef.id);
-  return campaignRef.id;
 }
 
-
-// ✅ Function: Add a donation (called after Paystack payment)
-export async function addDonation(data) {
-  if (!data.campaignId || !data.amount) throw new Error("Missing donation info");
-  const donationRef = await addDoc(collection(db, "donations"), {
-    campaignId: data.campaignId,
-    donorId: data.donorId || "",
-    donorName: data.donorName || "Anonymous",
-    amount: Number(data.amount),
-    message: data.message || "",
-    paymentRef: data.paymentRef || "",
-    status: data.status || "SUCCESS",
-    anonymous: data.anonymous || false,
-    createdAt: serverTimestamp()
-  });
-
-  // Update campaign totals
-  const campaignRef = doc(db, "campaigns", data.campaignId);
-  await updateDoc(campaignRef, {
-    amountRaised: increment(data.amount),
-    donationCount: increment(1),
-    updatedAt: serverTimestamp()
-  });
-
-  console.log("✅ Donation added:", donationRef.id);
+/**
+ * Retrieve all campaigns from Firestore ordered by creation time.
+ *
+ * @returns {Promise<Array<Object>>} A promise that resolves to an array of
+ *          campaign objects, each augmented with its Firestore ID on the
+ *          `id` property.
+ */
+export async function fetchCampaigns() {
+  try {
+    const campaignsCol = collection(db, "campaigns");
+    // Create a query to order campaigns by creation time if such a field
+    // exists. If you store a `createdAt` timestamp in your documents
+    // (recommended), order by it descending so the newest appears first.
+    const campaignsQuery = query(campaignsCol, orderBy("createdAt", "desc"));
+    const campaignSnapshot = await getDocs(campaignsQuery);
+    const campaigns = [];
+    campaignSnapshot.forEach((doc) => {
+      campaigns.push({ id: doc.id, ...doc.data() });
+    });
+    return campaigns;
+  } catch (error) {
+    console.error("Error fetching campaigns:", error);
+    throw error;
+  }
 }
 
-// ✅ Export for reuse in all pages
-window.__FIREBASE__ = {
-  app, auth, db, storage,
-  onAuthStateChanged, signOut,
-  serverTimestamp, doc, setDoc, getDoc, addDoc,
-  updateDoc, increment, query, where, orderBy, limit, onSnapshot,
-  storageRef, uploadBytes, getDownloadURL,
-  createCampaign, addDonation
-};
-
-console.log("🔥 Firebase initialized successfully");
+// Export the db instance in case other modules need direct access.
+export { db };
