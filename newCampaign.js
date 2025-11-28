@@ -38,23 +38,23 @@ if (form && firebaseExports) {
         return;
       }
 
-      // Grab form values
-      const organizer = document.getElementById("organizer").value.trim();
-      const title = document.getElementById("title").value.trim();
-      const location = document.getElementById("location").value.trim();
-      const goal = document.getElementById("goal").value;
-      const accountNumber = document.getElementById("account").value.trim();
-      const accountName = document.getElementById("account-name").value.trim();
-      const startDate = document.getElementById("start-date").value;
-      const endDate = document.getElementById("end-date").value;
-      const description = document.getElementById("description").value.trim();
-      const termsChecked = document.getElementById("terms").checked;
+      // Grab form values (use optional chaining/defaults so missing elements don't throw)
+      const organizer = document.getElementById("organizer")?.value?.trim() || "";
+      const title = document.getElementById("title")?.value?.trim() || "";
+      const location = document.getElementById("location")?.value?.trim() || "";
+      const goal = document.getElementById("goal")?.value || "";
+      const accountNumber = document.getElementById("account")?.value?.trim() || "";
+      const accountName = document.getElementById("account-name")?.value?.trim() || "";
+      const startDate = document.getElementById("start-date")?.value || "";
+      const endDate = document.getElementById("end-date")?.value || "";
+      const description = document.getElementById("description")?.value?.trim() || "";
+      const termsChecked = !!document.getElementById("terms")?.checked;
 
       const coverFileInput = document.getElementById("cover-photo");
       const extraFilesInput = document.getElementById("additional-photos");
 
-      const coverFile = coverFileInput.files[0] || null;
-      const extraFiles = extraFilesInput.files || [];
+      const coverFile = coverFileInput?.files?.[0] || null;
+      const extraFiles = extraFilesInput?.files || [];
 
       if (!termsChecked) {
         alert("You must agree to the terms and conditions.");
@@ -73,6 +73,43 @@ if (form && firebaseExports) {
         }
         return;
       }
+    // show an alert once both cover + all additional photos have finished uploading
+    const _originalUploadBytes = uploadBytes;
+    let _coverUploaded = false;
+    let _extrasUploaded = 0;
+    const _totalExtras = extraFiles.length;
+
+    const _wrappedUploadBytes = async (ref, file) => {
+        const result = await _originalUploadBytes(ref, file);
+
+        // try to detect whether this was a cover or an extra by checking the storage ref path
+        try {
+            const path = ref && (ref.fullPath || (ref._location && ref._location.path_) || "");
+            if (path && path.includes("-cover-")) {
+                _coverUploaded = true;
+            } else if (path && path.includes("-extra-")) {
+                _extrasUploaded++;
+            }
+        } catch (err) {
+            // ignore detection errors
+        }
+
+        // when cover uploaded and all extras uploaded, show alert once
+        if (_coverUploaded && _extrasUploaded === _totalExtras) {
+            alert("All photos uploaded successfully.");
+        }
+
+        return result;
+    };
+
+    // replace uploadBytes with the wrapped version so subsequent calls trigger the alert check
+    try {
+        // If uploadBytes is writable (non-const), replace it; otherwise attach wrapped to window for manual use.
+        uploadBytes = _wrappedUploadBytes;
+    } catch (e) {
+        // fallback: attach wrapped function so you can call window.wrappedUploadBytes instead
+        window.wrappedUploadBytes = _wrappedUploadBytes;
+    }
 
       // 1. Upload cover photo to Firebase Storage
       let coverImageUrl = "";
