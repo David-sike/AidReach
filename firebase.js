@@ -1,88 +1,145 @@
-/**
- * Firebase initialization and helper functions for the charity platform.
- *
- * This module configures the Firebase SDK and exposes convenience
- * functions for interacting with Firestore. Keeping the Firebase
- * configuration in a separate file isolates sensitive keys and makes
- * it easy to update or swap environments (e.g. development vs
- * production). The helper functions abstract away the low‑level API
- * details so your pages only need to import and call them.
- */
+// firebase.js
 
-// Import the functions you need from the Firebase SDKs.
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+import { 
+  initializeApp,
+  getApps,
+  getApp
+} from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
+
+import {
+  getAuth,
+  onAuthStateChanged,
+  signOut,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword
+} from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
+
 import {
   getFirestore,
-  collection,
+  serverTimestamp,
+  doc,
+  setDoc,
+  getDoc,
   addDoc,
-  getDocs,
+  updateDoc,
+  collection,
   query,
+  where,
   orderBy,
-} from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+  limit,
+  onSnapshot,
+  increment
+} from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
 
-// TODO: Replace the following with your app's Firebase project configuration.
-// See: https://firebase.google.com/docs/web/learn-more#config-object
+import {
+  getStorage,
+  ref as storageRef,
+  uploadBytes,
+  getDownloadURL
+} from "https://www.gstatic.com/firebasejs/10.12.4/firebase-storage.js";
+
+// AidReach config
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_AUTH_DOMAIN",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_STORAGE_BUCKET",
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-  appId: "YOUR_APP_ID",
+  apiKey: "AIzaSyBg_xrflYlYEPk6txfP-5iR0y-tBRFZGcA",
+  authDomain: "aidreach-2d1ec.firebaseapp.com",
+  projectId: "aidreach-2d1ec",
+  storageBucket: "aidreach-2d1ec.firebasestorage.app",
+  messagingSenderId: "1045366476824",
+  appId: "1:1045366476824:web:245e9085184f5cbf98336d",
+  measurementId: "G-RZ5EPWMM33"
 };
 
-// Initialize Firebase. This should only be done once in your app.
-const app = initializeApp(firebaseConfig);
+// make config visible to navbar.js if it wants to override
+window._FIREBASE_CONFIG_ = firebaseConfig;
 
-// Initialize Firestore. Firestore provides a NoSQL document database.
+// ✅ Reuse existing app if someone already called initializeApp
+let app;
+if (getApps().length) {
+  app = getApp();
+} else {
+  app = initializeApp(firebaseConfig);
+}
+
+const auth = getAuth(app);
 const db = getFirestore(app);
+const storage = getStorage(app);
 
-/**
- * Persist a new campaign in Firestore.
- *
- * @param {Object} campaignData An object containing the fields for the
- *        campaign (e.g. title, description, targetAmount, startDate,
- *        endDate, createdBy, imageUrl, etc.). Additional properties will be
- *        stored as well; Firestore allows flexible schemas.
- * @returns {Promise<string>} A promise that resolves with the new document ID
- *          when the write completes.
- */
-export async function addCampaign(campaignData) {
+// keep your onAuthStateChanged logic here as you had it
+onAuthStateChanged(auth, async (user) => {
+  if (!user) return;
+
+  console.log("Logged in user:", user.uid);
+
   try {
-    // Add a new document with an automatically generated ID.
-    const docRef = await addDoc(collection(db, "campaigns"), campaignData);
-    return docRef.id;
+    const userRef = doc(db, "users", user.uid);
+    const userSnap = await getDoc(userRef);
+
+    if (!userSnap.exists()) {
+      await setDoc(userRef, {
+        displayName: user.displayName || "",
+        email: user.email || "",
+        photoURL: user.photoURL || "",
+        createdAt: serverTimestamp(),
+        role: "user"
+      });
+      console.log("Created new user document");
+    }
   } catch (error) {
-    console.error("Error adding campaign:", error);
-    throw error;
+    console.warn("User doc fetch failed:", error);
   }
+});
+
+// example helper: createCampaign, keep whatever we wrote before
+export async function createCampaign(data, user) {
+  if (!user) throw new Error("Not signed in");
+
+  const campaignRef = await addDoc(collection(db, "campaigns"), {
+    ownerId: user.uid,
+    title: data.title,
+    summary: data.summary,
+    goalAmount: Number(data.goalAmount) || 0,
+    amountRaised: 0,
+    donationCount: 0,
+    coverImageUrl: data.coverImageUrl || "",
+    status: "LIVE",
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+    location: data.location || "",
+    category: data.category || "",
+    organizer: data.organizer || "",
+    startDate: data.startDate || "",
+    endDate: data.endDate || "",
+    gallery: data.gallery || []
+  });
+
+  console.log("Campaign created with id:", campaignRef.id);
+  return campaignRef.id;
 }
 
-/**
- * Retrieve all campaigns from Firestore ordered by creation time.
- *
- * @returns {Promise<Array<Object>>} A promise that resolves to an array of
- *          campaign objects, each augmented with its Firestore ID on the
- *          `id` property.
- */
-export async function fetchCampaigns() {
-  try {
-    const campaignsCol = collection(db, "campaigns");
-    // Create a query to order campaigns by creation time if such a field
-    // exists. If you store a `createdAt` timestamp in your documents
-    // (recommended), order by it descending so the newest appears first.
-    const campaignsQuery = query(campaignsCol, orderBy("createdAt", "desc"));
-    const campaignSnapshot = await getDocs(campaignsQuery);
-    const campaigns = [];
-    campaignSnapshot.forEach((doc) => {
-      campaigns.push({ id: doc.id, ...doc.data() });
-    });
-    return campaigns;
-  } catch (error) {
-    console.error("Error fetching campaigns:", error);
-    throw error;
-  }
-}
+// expose a global bag for non module scripts like newCampaign.js
+window.__FIREBASE__ = {
+  app,
+  auth,
+  db,
+  storage,
+  onAuthStateChanged,
+  signOut,
+  serverTimestamp,
+  doc,
+  setDoc,
+  getDoc,
+  addDoc,
+  updateDoc,
+  increment,
+  query,
+  where,
+  orderBy,
+  limit,
+  onSnapshot,
+  storageRef,
+  uploadBytes,
+  getDownloadURL,
+  createCampaign
+};
 
-// Export the db instance in case other modules need direct access.
-export { db };
+console.log("Firebase initialized successfully for AidReach");

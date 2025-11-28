@@ -220,4 +220,61 @@
 </div>
 
 </body>
+<script type="module">
+import { db } from "./firebase.js";
+import { collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
+
+async function loadCampaigns() {
+  const table = document.querySelector(".table");
+  if (!table) return;
+
+  // remove existing rows to avoid duplicates
+  table.querySelectorAll('.row').forEach(r => r.remove());
+
+  const querySnapshot = await getDocs(collection(db, "campaigns"));
+
+  querySnapshot.forEach(doc => {
+    const c = doc.data() || {};
+
+    const rowHtml = `
+      <div class="row">
+        <div>${escapeHtml(c.id ?? '')}</div>
+        <div>${escapeHtml(c.title ?? '')}</div>
+        <div>${escapeHtml(c.organizer ?? '')}</div>
+        <div>${escapeHtml(c.startDate ?? '')}</div>
+        <div>₦${Number(c.goal ?? 0).toLocaleString()}</div>
+        <div><span class="badge ${toBadgeClass(c.status)}">${escapeHtml((c.status || '').toUpperCase())}</span></div>
+      </div>
+    `;
+
+    const foot = table.querySelector('.foot');
+    if (foot) {
+      foot.insertAdjacentHTML('beforebegin', rowHtml);
+    } else {
+      table.insertAdjacentHTML('beforeend', rowHtml);
+    }
+  });
+}
+
+function toBadgeClass(status) {
+  if (!status) return 'pending';
+  const s = String(status).toLowerCase();
+  if (s.includes('closed')) return 'closed';
+  if (s.includes('pending')) return 'pending';
+  if (s.includes('rejected')) return 'rejected';
+  if (s.includes('live')) return 'live';
+  return 'pending';
+}
+
+function escapeHtml(str) {
+  return String(str)
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#39;');
+}
+
+document.addEventListener("DOMContentLoaded", loadCampaigns);
+</script>
 </html>
