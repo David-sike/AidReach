@@ -4,30 +4,6 @@ document.addEventListener("DOMContentLoaded", () => {
   console.log("✅ newCampaign.js loaded");
 
   const firebaseExports = window.__FIREBASE__;
-    function showMessage(type, text) {
-  const box = document.getElementById("campaign-message");
-  if (!box) {
-    alert(text);
-    return;
-  }
-
-  box.textContent = text;
-  box.style.display = "block";
-
-  // basic styling
-  box.style.padding = "10px 14px";
-  box.style.borderRadius = "8px";
-  box.style.marginTop = "10px";
-  box.style.fontSize = "14px";
-
-  if (type === "success") {
-    box.style.backgroundColor = "#dcfce7";
-    box.style.color = "#166534";
-  } else {
-    box.style.backgroundColor = "#fee2e2";
-    box.style.color = "#991b1b";
-  }
-}
 
   if (!firebaseExports) {
     console.error("Firebase not initialized. Make sure firebase.js is loaded BEFORE newCampaign.js");
@@ -44,7 +20,6 @@ document.addEventListener("DOMContentLoaded", () => {
   } = firebaseExports;
 
   const form = document.getElementById("campaign-form");
-    const messageBox = document.getElementById("message-box"); 
 
   if (!form) {
     console.error("❌ Could not find form with id='campaign-form'");
@@ -52,6 +27,37 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   console.log("✅ Campaign form found:", form);
+
+  // Styled message helper
+  function showMessage(type, html) {
+    const box = document.getElementById("campaign-message");
+    if (!box) return;
+
+    // Reset classes
+    box.classList.remove("success", "error");
+
+    // Apply type class
+    box.classList.add(type === "success" ? "success" : "error");
+
+    // Set content and show
+    box.innerHTML = html;
+    box.style.display = "block";
+    box.style.animation = "fadeIn 0.3s ease-out";
+
+    // Clear previous timer if any
+    if (box._hideTimeout) {
+      clearTimeout(box._hideTimeout);
+    }
+
+    // Auto hide
+    box._hideTimeout = setTimeout(() => {
+      box.style.animation = "fadeOut 0.3s ease-out";
+      setTimeout(() => {
+        box.style.display = "none";
+        box.style.animation = "";
+      }, 300);
+    }, 4000);
+  }
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -67,10 +73,10 @@ document.addEventListener("DOMContentLoaded", () => {
       console.log("Current user:", user);
 
       if (!user) {
-        alert("You must be signed in to publish a campaign.");
+        showMessage("error", "You must be signed in to publish a campaign.");
         if (submitBtn) {
           submitBtn.disabled = false;
-          submitBtn.textContent = "PUBLISH CAMPAIGN";
+          submitBtn.textContent = "POST CAMPAIGN";
         }
         return;
       }
@@ -97,11 +103,11 @@ document.addEventListener("DOMContentLoaded", () => {
         description
       });
 
-      if (!title || !description || !goalAmount) {
-        alert("Please fill in all required fields.");
+      if (!organizer || !title || !location || !goalAmount || !startDate || !endDate || !description) {
+        showMessage("error", "Please fill in all required fields before posting your campaign.");
         if (submitBtn) {
           submitBtn.disabled = false;
-          submitBtn.textContent = "PUBLISH CAMPAIGN";
+          submitBtn.textContent = "POST CAMPAIGN";
         }
         return;
       }
@@ -123,7 +129,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
         console.log("✅ Cover image URL:", coverImageUrl);
       } else {
-        console.warn("No cover image selected.");
+        showMessage("error", "Please select a cover image for your campaign.");
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = "POST CAMPAIGN";
+        }
+        return;
       }
 
       // 3. Upload additional photos (multiple)
@@ -146,11 +157,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
           console.log(`✅ Uploaded extra photo ${i + 1}:`, url);
         }
-
-        // Alert once all are done
-        showMessage("success", "🎉 Thank you for using <span style='color:#1a73e8;'>AidReach</span>!<br>Your campaign has been published successfully.");
-
-        alert(`Uploaded ${additionalPhotoUrls.length} photo(s).`);
       } else {
         console.log("No additional photos selected.");
       }
@@ -162,11 +168,11 @@ document.addEventListener("DOMContentLoaded", () => {
         goalAmount,
         coverImageUrl,
         location,
-        category: "",           // you can extend later
+        category: "",
         organizer,
         startDate,
         endDate,
-        gallery: additionalPhotoUrls   // store all extra photos here
+        gallery: additionalPhotoUrls
       };
 
       console.log("Sending campaignData to createCampaign:", campaignData);
@@ -175,30 +181,30 @@ document.addEventListener("DOMContentLoaded", () => {
       const campaignId = await createCampaign(campaignData, user);
       console.log("✅ Campaign created with ID:", campaignId);
 
-      alert("Campaign published successfully!");
+      showMessage(
+        "success",
+        "🎉 Thank you for using <span style='color:#4A249D; font-weight:600;'>AidReach</span>.<br>Your campaign has been posted successfully, it is currently under review!"
+      );
 
       form.reset();
 
       if (submitBtn) {
         submitBtn.disabled = false;
-        submitBtn.textContent = "SUBMIT CAMPAIGN";
+        submitBtn.textContent = "POST CAMPAIGN";
       }
 
+      // Optional redirect
+    setTimeout(() => {
       window.location.href = "Your Campaings.html";
-    } 
-    catch (error) {
-  console.error("❌ Error publishing campaign:", error);
-  showMessage("error", "Something went wrong while publishing your campaign. Please try again.");
-  // do not rethrow here, we already handled it
-  
-
-
+    }, 10000);
+    } catch (error) {
+      console.error("❌ Error publishing campaign:", error);
+      showMessage("error", "Something went wrong while publishing your campaign. Please try again.");
 
       if (submitBtn) {
         submitBtn.disabled = false;
-        submitBtn.textContent = "PUBLISH CAMPAIGN";
+        submitBtn.textContent = "POST CAMPAIGN";
       }
-    
     }
   });
 });
