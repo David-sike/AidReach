@@ -54,7 +54,7 @@
     },
     5: {
       title: "Help Nigerian Youth Pursue Vocational Studies",
-      mainImage: "SDP/aid.jpg",
+      mainImage: "SDP/pic.jpg",
       thumbnails: ["SDP/aid header 2.jpg", "SDP/aid 4.jpg", "SDP/aid header 3.jpg", "SDP/aid.jpg"],
       overview: "Many families in Adamawa are currently struggling due to ongoing food shortages and economic hardship caused by conflict and displacement. Thousands of households lack access to daily meals, clean water, and basic healthcare",
       challenge: "This campaign aims to provide emergency food packs, clean /water, and essential supplies to the most vulnerable communities, especially children and widows, helping them survive and rebuild hope during this difficult time.",
@@ -66,7 +66,7 @@
       startDate: "August 15, 2025"
     },
     6: {
-      title: "BLACK GIRLS IN TECH NIGERIA FUNDRAISER",
+      title: "Support for Displaced Families in Northern Nigeria",
       mainImage: "SDP/nigeria-9417.jpg",
       thumbnails: ["SDP/aid header 2.jpg", "SDP/nigeria-9417.jpg", "SDP/aid header 3.jpg", "SDP/aid.jpg"],
       overview: "Many families in Adamawa are currently struggling due to ongoing food shortages and economic hardship caused by conflict and displacement. Thousands of households lack access to daily meals, clean water, and basic healthcare",
