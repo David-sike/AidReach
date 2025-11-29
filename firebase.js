@@ -115,6 +115,41 @@ export async function createCampaign(data, user) {
   console.log("Campaign created with id:", campaignRef.id);
   return campaignRef.id;
 }
+// ✅ Function: Add a donation and update campaign totals
+async function addDonation(data) {
+  if (!data.campaignId || !data.amount) {
+    throw new Error("Missing donation info: campaignId and amount are required");
+  }
+
+  const amountNum = Number(data.amount);
+  if (isNaN(amountNum) || amountNum <= 0) {
+    throw new Error("Invalid donation amount");
+  }
+
+  // 1) Create donation record
+  const donationRef = await addDoc(collection(db, "donations"), {
+    campaignId: data.campaignId,
+    donorId: data.donorId || "",
+    donorName: data.donorName || "Anonymous",
+    amount: amountNum,
+    message: data.message || "",
+    paymentRef: data.paymentRef || "",
+    status: data.status || "SUCCESS",
+    anonymous: data.anonymous || false,
+    createdAt: serverTimestamp()
+  });
+
+  // 2) Update campaign aggregates
+  const campaignRef = doc(db, "campaigns", data.campaignId);
+  await updateDoc(campaignRef, {
+    amountRaised: increment(amountNum),
+    donationCount: increment(1),
+    updatedAt: serverTimestamp()
+  });
+
+  console.log("✅ Donation added:", donationRef.id);
+  return donationRef.id;
+}
 
 // expose a global bag for non module scripts like newCampaign.js
 window.__FIREBASE__ = {
@@ -125,21 +160,32 @@ window.__FIREBASE__ = {
   onAuthStateChanged,
   signOut,
   serverTimestamp,
+
+  // Firestore document helpers
   doc,
   setDoc,
   getDoc,
   addDoc,
   updateDoc,
   increment,
+
+  // Firestore collection query helpers - needed by donation.js
+  collection,
   query,
   where,
   orderBy,
-  limit,
   onSnapshot,
+
+  // Storage helpers
   storageRef,
   uploadBytes,
   getDownloadURL,
-  createCampaign
+
+  // Custom app helpers
+  createCampaign,
+  addDonation
 };
+
+
 
 console.log("Firebase initialized successfully for AidReach");
