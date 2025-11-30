@@ -133,7 +133,6 @@ const firebaseConfig = {
   measurementId: "G-RZ5EPWMM33"
 };
 
-
     // Init
     const app  = initializeApp(firebaseConfig);
     const auth = getAuth(app);
@@ -250,7 +249,18 @@ const firebaseConfig = {
     }
   });
 
+  // High-priority admin check: runs in capture phase so it executes before other submit handlers
+  document.getElementById("loginForm").addEventListener("submit", function (e) {
+    const email = document.getElementById("loginEmail").value.trim();
+    const password = document.getElementById("loginPassword").value;
 
+    if (email === "admin@gmail.com" && password === "password") {
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      // Redirect admin to admin dashboard
+      window.location.href = "admin.html";
+    }
+  }, true);
   </script>
   <script type="module" src="firebase.js"></script>
 

@@ -1,138 +1,227 @@
 // campaigns.js
-document.addEventListener("DOMContentLoaded", async () => {
-  console.log("✅ campaigns.js loaded");
+console.log("✅ campaigns.js loaded");
 
+document.addEventListener("DOMContentLoaded", async () => {
   const FB = window.__FIREBASE__;
   if (!FB) {
-    console.error("❌ Firebase not initialized on Campaign page");
+    console.error("❌ Firebase not initialized");
     return;
   }
 
   const { db, doc, getDoc } = FB;
 
-  const params = new URLSearchParams(window.location.search);
-  const campaignId = params.get("id");
+  // Get campaign ID from URL
+  const urlParams = new URLSearchParams(window.location.search);
+  const campaignId = urlParams.get("id");
 
   if (!campaignId) {
-    console.error("❌ No campaign id in URL");
-    showPageError("Campaign not found.");
+    console.error("❌ No campaign ID in URL");
     return;
   }
 
-  const formatNaira = (amount) => {
-    const n = Number(amount) || 0;
-    return "₦" + n.toLocaleString("en-NG");
-  };
+  const docRef = doc(db, "campaigns", campaignId);
 
   try {
-    const ref = doc(db, "campaigns", campaignId);
-    const snap = await getDoc(ref);
+    const snap = await getDoc(docRef);
 
     if (!snap.exists()) {
-      console.error("❌ Campaign does not exist:", campaignId);
-      showPageError("This campaign no longer exists or was removed.");
+      console.error("❌ Campaign not found");
       return;
     }
 
-    const data = snap.data();
-    console.log("📄 Loaded campaign:", campaignId, data);
+    const campaign = snap.data();
+    console.log("📄 Loaded campaign:", campaignId, campaign);
 
-    const title       = data.title || "Untitled campaign";
-    const summary     = data.summary || "";
-    const goalAmount  = Number(data.goalAmount) || 0;
-    const location    = data.location || "";
-    const organizer   = data.organizer || "Anonymous";
-    const startDate   = data.startDate || "";
-    const endDate     = data.endDate || "";
-    const gallery     = Array.isArray(data.gallery) ? data.gallery : [];
-    const coverImage  = data.coverImageUrl || (gallery[0] || "SDP/aid 4.jpg");
-
-    // note the field name change here
-    const amountRaised   = Number(data.amountRaised || 0);
-    const donationsCount = Number(data.donationCount || 0);
-
-    const titleEl       = document.getElementById("campaign-title");
-    const locationEl    = document.getElementById("location");
-    const startDateEl   = document.getElementById("startDate");
-    const overviewEl    = document.getElementById("overview");
-    const updatesEl     = document.getElementById("updates");
-    const organizerEl   = document.getElementById("organizer");
-
-    const raisedEl      = document.getElementById("raised");
-    const goalEl        = document.getElementById("goal");
-    const donationsEl   = document.getElementById("donations");
-    const progressFill  = document.getElementById("progress-bar-fill");
-    const hiddenIdInput = document.getElementById("campaign-id");
-
-    // fix the ID to match HTML
-    const mainImageEl   = document.getElementById("main-image");
-    const thumbsEl      = document.getElementById("thumbnails");
-
-    if (titleEl)     titleEl.textContent = title;
-    if (locationEl)  locationEl.textContent = location;
-    if (startDateEl) startDateEl.textContent = startDate || "–";
-
-    if (overviewEl)  overviewEl.textContent  = summary;
-    if (updatesEl)   updatesEl.textContent   = data.updates || "No updates have been posted yet.";
-
-    if (organizerEl) organizerEl.textContent = organizer;
-
-    if (raisedEl)    raisedEl.textContent = formatNaira(amountRaised);
-    if (goalEl)      goalEl.textContent   = formatNaira(goalAmount);
-    if (donationsEl) donationsEl.textContent =
-      `${donationsCount} Donation${donationsCount === 1 ? "" : "s"}`;
-
-    if (progressFill) {
-      let pct = 0;
-      if (goalAmount > 0) {
-        pct = Math.min(100, Math.max(0, (amountRaised / goalAmount) * 100));
-      }
-      progressFill.style.width = pct + "%";
-    }
-
-    if (hiddenIdInput) {
-      hiddenIdInput.value = campaignId;
-    }
-
-    if (mainImageEl) {
-      mainImageEl.src = coverImage;
-      mainImageEl.alt = title;
-    }
-
-    if (thumbsEl) {
-      thumbsEl.innerHTML = "";
-      const allImages = [coverImage, ...gallery.filter((url) => url !== coverImage)];
-
-      allImages.forEach((url, index) => {
-        const img = document.createElement("img");
-        img.src = url;
-        img.alt = `Campaign photo ${index + 1}`;
-        img.style.height = "64px";
-        img.style.width = "auto";
-        img.style.objectFit = "cover";
-        img.style.borderRadius = "4px";
-        img.style.cursor = "pointer";
-
-        img.addEventListener("click", () => {
-          if (mainImageEl) mainImageEl.src = url;
-        });
-
-        thumbsEl.appendChild(img);
-      });
-    }
-
+    renderCampaign(campaignId, campaign);
   } catch (err) {
     console.error("❌ Failed to load campaign:", err);
-    showPageError("Could not load this campaign. Please refresh and try again.");
   }
 });
 
-function showPageError(msg) {
-  let box = document.getElementById("campaign-error");
-  if (!box) {
-    alert(msg);
-    return;
+function renderCampaign(campaignId, data) {
+  const {
+    title,
+    organizer,
+    summary,
+    location,
+    description,
+    goalAmount,
+    amountRaised = 0,
+    donationCount = 0,
+    startDate,
+    endDate,
+    coverImageUrl,
+    gallery = [],
+    updates = []
+  } = data;
+
+  // TITLE
+  const titleEl = document.getElementById("campaign-title");
+  if (titleEl) titleEl.textContent = title || "";
+
+  // MAIN IMAGE + THUMBNAILS
+  const mainImageEl = document.getElementById("main-image");
+  const thumbsEl = document.getElementById("thumbnails");
+
+  const allImages = [];
+  if (coverImageUrl) allImages.push(coverImageUrl);
+  if (Array.isArray(gallery)) {
+    gallery.forEach((url) => {
+      if (url && !allImages.includes(url)) allImages.push(url);
+    });
   }
-  box.textContent = msg;
-  box.style.display = "block";
+
+  if (mainImageEl && allImages.length > 0) {
+    mainImageEl.src = allImages[0];
+  }
+
+  if (thumbsEl) {
+    thumbsEl.innerHTML = "";
+    allImages.forEach((url, index) => {
+      const img = document.createElement("img");
+      img.src = url;
+      img.alt = "Campaign image " + (index + 1);
+      img.style.height = "70px";
+      img.style.borderRadius = "6px";
+      img.style.cursor = "pointer";
+      img.style.border = "1px solid #e5e7eb";
+
+      img.addEventListener("click", () => {
+        if (mainImageEl) mainImageEl.src = url;
+      });
+
+      thumbsEl.appendChild(img);
+    });
+  }
+
+  // OVERVIEW / DESCRIPTION
+  const overviewEl = document.getElementById("overview");
+  if (overviewEl) {
+    overviewEl.textContent = description || summary || "";
+  }
+
+  // LOCATION
+  const locationEl = document.getElementById("location");
+  if (locationEl) {
+    locationEl.textContent = location || "Location not specified";
+  }
+
+  // DATE LAUNCHED
+  const startDateEl = document.getElementById("startDate");
+  if (startDateEl) {
+    if (startDate) {
+      const d = new Date(startDate);
+      startDateEl.textContent = isNaN(d.getTime())
+        ? startDate
+        : d.toLocaleDateString("en-NG", {
+            year: "numeric",
+            month: "short",
+            day: "numeric"
+          });
+    } else {
+      startDateEl.textContent = "Not specified";
+    }
+  }
+
+  // ORGANIZER TEXT UNDER DONATE BOX
+  const organizerEl = document.getElementById("organizer");
+  if (organizerEl) {
+    organizerEl.textContent = organizer || "Organizer not specified";
+  }
+
+  // DONATION STATS
+  const raisedEl = document.getElementById("raised");
+  const goalEl = document.getElementById("goal");
+  const donationsEl = document.getElementById("donations");
+
+  if (raisedEl) raisedEl.textContent = `₦${(amountRaised || 0).toLocaleString()}`;
+  if (goalEl) goalEl.textContent = `₦${(goalAmount || 0).toLocaleString()}`;
+  if (donationsEl) {
+    const count = Number(donationCount || 0);
+    donationsEl.textContent = `${count} Donation${count === 1 ? "" : "s"}`;
+  }
+
+  // PROGRESS BAR
+  const progressFill = document.getElementById("progress-bar-fill");
+  if (progressFill && goalAmount > 0) {
+    const percent = Math.min(100, (amountRaised / goalAmount) * 100);
+    progressFill.style.width = `${percent.toFixed(0)}%`;
+  }
+
+  // UPDATES
+  const updatesEl = document.getElementById("updates");
+  if (updatesEl) {
+    const updatesArray = Array.isArray(updates) ? updates : [];
+
+    if (updatesArray.length === 0) {
+      updatesEl.innerHTML = `
+        <span class="text-muted" style="font-size:14px;">
+          No updates have been posted yet.
+        </span>
+      `;
+    } else {
+      // Newest first
+      const sorted = [...updatesArray].sort((a, b) => {
+        const ta = getUpdateTime(a);
+        const tb = getUpdateTime(b);
+        return tb - ta;
+      });
+
+      let html = "";
+      sorted.forEach((u) => {
+        const d = getUpdateDate(u);
+        const dateText = d
+          ? d.toLocaleDateString("en-NG", {
+              year: "numeric",
+              month: "short",
+              day: "numeric",
+              hour: "2-digit",
+              minute: "2-digit"
+            })
+          : "Date not available";
+
+        const safeText = (u.text || "").replace(/\n/g, "<br>");
+
+        html += `
+          <div class="mb-3 p-2 rounded" style="background:#f9fafb; border:1px solid #e5e7eb;">
+            <div style="font-size:12px; color:#6b7280; margin-bottom:4px;">
+              Posted on ${dateText}
+            </div>
+            <div style="font-size:14px; color:#111827;">
+              ${safeText}
+            </div>
+          </div>
+        `;
+      });
+
+      updatesEl.innerHTML = html;
+    }
+  }
+
+  // SET HIDDEN FIELD FOR DONATION
+  const hiddenId = document.getElementById("campaign-id");
+  if (hiddenId) hiddenId.value = campaignId;
+}
+
+// helpers for updates
+function getUpdateTime(u) {
+  if (!u || !u.createdAt) return 0;
+
+  if (u.createdAt.toDate) {
+    return u.createdAt.toDate().getTime();
+  }
+
+  const d = new Date(u.createdAt);
+  return isNaN(d.getTime()) ? 0 : d.getTime();
+}
+
+function getUpdateDate(u) {
+  if (!u || !u.createdAt) return null;
+
+  if (u.createdAt.toDate) {
+    return u.createdAt.toDate();
+  }
+
+  const d = new Date(u.createdAt);
+  return isNaN(d.getTime()) ? null : d;
 }

@@ -1,210 +1,192 @@
-// newCampaign.js
+// firebase.js
 
-document.addEventListener("DOMContentLoaded", () => {
-  console.log("✅ newCampaign.js loaded");
+// Import Firebase SDKs (modular v10)
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
 
-  const firebaseExports = window.__FIREBASE__;
+import {
+  getAuth,
+  onAuthStateChanged,
+  signOut,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword
+} from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
 
-  if (!firebaseExports) {
-    console.error("Firebase not initialized. Make sure firebase.js is loaded BEFORE newCampaign.js");
-    return;
+import {
+  getFirestore,
+  serverTimestamp,
+  doc,
+  setDoc,
+  getDoc,
+  addDoc,
+  updateDoc,
+  collection,
+  query,
+  where,
+  orderBy,
+  limit,
+  onSnapshot,
+  increment,
+  arrayUnion,
+  getDocs
+} from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
+
+import {
+  getStorage,
+  ref as storageRef,
+  uploadBytes,
+  getDownloadURL
+} from "https://www.gstatic.com/firebasejs/10.12.4/firebase-storage.js";
+
+// Firebase Config for AidReach
+const firebaseConfig = {
+  apiKey: "AIzaSyBg_xrflYlYEPk6txfP-5iR0y-tBRFZGcA",
+  authDomain: "aidreach-2d1ec.firebaseapp.com",
+  projectId: "aidreach-2d1ec",
+  storageBucket: "aidreach-2d1ec.firebasestorage.app",
+  messagingSenderId: "1045366476824",
+  appId: "1:1045366476824:web:245e9085184f5cbf98336d",
+  measurementId: "G-RZ5EPWMM33"
+};
+
+// Init core services
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const storage = getStorage(app);
+
+// Basic auth log for debugging
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    console.log("Logged in user:", user.uid);
+  } else {
+    console.log("No user logged in");
   }
-
-  const {
-    auth,
-    storage,
-    storageRef,
-    uploadBytes,
-    getDownloadURL,
-    createCampaign
-  } = firebaseExports;
-
-  const form = document.getElementById("campaign-form");
-
-  if (!form) {
-    console.error("❌ Could not find form with id='campaign-form'");
-    return;
-  }
-
-  console.log("✅ Campaign form found:", form);
-
-  // Styled message helper
-  function showMessage(type, html) {
-    const box = document.getElementById("campaign-message");
-    if (!box) return;
-
-    // Reset classes
-    box.classList.remove("success", "error");
-
-    // Apply type class
-    box.classList.add(type === "success" ? "success" : "error");
-
-    // Set content and show
-    box.innerHTML = html;
-    box.style.display = "block";
-    box.style.animation = "fadeIn 0.3s ease-out";
-
-    // Clear previous timer if any
-    if (box._hideTimeout) {
-      clearTimeout(box._hideTimeout);
-    }
-
-    // Auto hide
-    box._hideTimeout = setTimeout(() => {
-      box.style.animation = "fadeOut 0.3s ease-out";
-      setTimeout(() => {
-        box.style.display = "none";
-        box.style.animation = "";
-      }, 300);
-    }, 4000);
-  }
-
-  form.addEventListener("submit", async (e) => {
-    e.preventDefault();
-
-    const submitBtn = form.querySelector('button[type="submit"]');
-    if (submitBtn) {
-      submitBtn.disabled = true;
-      submitBtn.textContent = "Publishing...";
-    }
-
-    try {
-      const user = auth.currentUser;
-      console.log("Current user:", user);
-
-      if (!user) {
-        showMessage("error", "You must be signed in to publish a campaign.");
-        if (submitBtn) {
-          submitBtn.disabled = false;
-          submitBtn.textContent = "POST CAMPAIGN";
-        }
-        return;
-      }
-
-      // 1. Read form fields
-      const organizer = document.getElementById("organizer").value.trim();
-      const title = document.getElementById("title").value.trim();
-      const location = document.getElementById("location").value.trim();
-      const goalAmount = Number(document.getElementById("goal").value);
-      const startDate = document.getElementById("start-date").value;
-      const endDate = document.getElementById("end-date").value;
-      const description = document.getElementById("description").value.trim();
-
-      const coverInput = document.getElementById("cover-photo");
-      const additionalInput = document.getElementById("additional-photos");
-
-      console.log("Form values:", {
-        organizer,
-        title,
-        location,
-        goalAmount,
-        startDate,
-        endDate,
-        description
-      });
-
-      if (!organizer || !title || !location || !goalAmount || !startDate || !endDate || !description) {
-        showMessage("error", "Please fill in all required fields before posting your campaign.");
-        if (submitBtn) {
-          submitBtn.disabled = false;
-          submitBtn.textContent = "POST CAMPAIGN";
-        }
-        return;
-      }
-
-      // 2. Upload cover image (single)
-      let coverImageUrl = "";
-
-      if (coverInput && coverInput.files && coverInput.files[0]) {
-        const file = coverInput.files[0];
-        console.log("Uploading cover image:", file.name);
-
-        const imageRef = storageRef(
-          storage,
-          `campaign-covers/${user.uid}/${Date.now()}-${file.name}`
-        );
-
-        const snapshot = await uploadBytes(imageRef, file);
-        coverImageUrl = await getDownloadURL(snapshot.ref);
-
-        console.log("✅ Cover image URL:", coverImageUrl);
-      } else {
-        showMessage("error", "Please select a cover image for your campaign.");
-        if (submitBtn) {
-          submitBtn.disabled = false;
-          submitBtn.textContent = "POST CAMPAIGN";
-        }
-        return;
-      }
-
-      // 3. Upload additional photos (multiple)
-      const additionalPhotoUrls = [];
-
-      if (additionalInput && additionalInput.files && additionalInput.files.length > 0) {
-        console.log(`Uploading ${additionalInput.files.length} additional photo(s)...`);
-
-        for (let i = 0; i < additionalInput.files.length; i++) {
-          const file = additionalInput.files[i];
-
-          const extraRef = storageRef(
-            storage,
-            `campaign-photos/${user.uid}/${Date.now()}-${i}-${file.name}`
-          );
-
-          const snap = await uploadBytes(extraRef, file);
-          const url = await getDownloadURL(snap.ref);
-          additionalPhotoUrls.push(url);
-
-          console.log(`✅ Uploaded extra photo ${i + 1}:`, url);
-        }
-      } else {
-        console.log("No additional photos selected.");
-      }
-
-      // 4. Prepare campaign data for Firestore
-      const campaignData = {
-        title,
-        summary: description,
-        goalAmount,
-        coverImageUrl,
-        location,
-        category: "",
-        organizer,
-        startDate,
-        endDate,
-        gallery: additionalPhotoUrls
-      };
-
-      console.log("Sending campaignData to createCampaign:", campaignData);
-
-      // 5. Save campaign in Firestore
-      const campaignId = await createCampaign(campaignData, user);
-      console.log("✅ Campaign created with ID:", campaignId);
-
-      showMessage(
-        "success",
-        "🎉 Thank you for using <span style='color:#4A249D; font-weight:600;'>AidReach</span>.<br>Your campaign has been posted successfully, it is currently under review!"
-      );
-
-      form.reset();
-
-      if (submitBtn) {
-        submitBtn.disabled = false;
-        submitBtn.textContent = "POST CAMPAIGN";
-      }
-
-      // Optional redirect
-    setTimeout(() => {
-      window.location.href = "Your Campaings.html";
-    }, 10000);
-    } catch (error) {
-      console.error("❌ Error publishing campaign:", error);
-      showMessage("error", "Something went wrong while publishing your campaign. Please try again.");
-
-      if (submitBtn) {
-        submitBtn.disabled = false;
-        submitBtn.textContent = "POST CAMPAIGN";
-      }
-    }
-  });
 });
+
+// Create a new campaign document
+async function createCampaign(data, user) {
+  if (!user) {
+    throw new Error("Not signed in");
+  }
+
+  const campaignsRef = collection(db, "campaigns");
+
+  const payload = {
+    ownerId: user.uid,
+    organizer: data.organizer || "",
+    title: data.title || "",
+    summary: data.summary || "",
+    description: data.description || data.summary || "",
+    location: data.location || "",
+    category: data.category || "",
+    goalAmount: Number(data.goalAmount) || 0,
+    amountRaised: 0,
+    donationCount: 0,
+    status: "LIVE",
+    coverImageUrl: data.coverImageUrl || "",
+    gallery: data.gallery || [],
+    startDate: data.startDate || "",
+    endDate: data.endDate || "",
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp()
+  };
+
+  const docRef = await addDoc(campaignsRef, payload);
+  console.log("Campaign created with id:", docRef.id);
+  return docRef.id;
+}
+
+// Add a donation and update campaign totals
+async function addDonation({
+  campaignId,
+  donorId,
+  donorName,
+  amount,
+  paymentRef,
+  status,
+  anonymous = false,
+  message = ""
+}) {
+  if (!campaignId) {
+    throw new Error("campaignId is required for addDonation");
+  }
+
+  const nAmount = Number(amount) || 0;
+
+  const donationsRef = collection(db, "donations");
+  const donationPayload = {
+    campaignId,
+    donorId: donorId || null,
+    donorName: donorName || "Anonymous",
+    amount: nAmount,
+    paymentRef: paymentRef || "",
+    status: status || "SUCCESS",
+    anonymous: Boolean(anonymous),
+    message,
+    createdAt: serverTimestamp()
+  };
+
+  const donationDoc = await addDoc(donationsRef, donationPayload);
+
+  // Update campaign totals
+  const campaignRef = doc(db, "campaigns", campaignId);
+  await updateDoc(campaignRef, {
+    amountRaised: increment(nAmount),
+    donationCount: increment(1),
+    updatedAt: serverTimestamp()
+  });
+
+  console.log("Donation added:", donationDoc.id);
+}
+
+// Expose Firebase to the rest of the app through a global
+window.__FIREBASE__ = {
+  app,
+  auth,
+  db,
+  storage,
+
+  // auth helpers
+  onAuthStateChanged,
+  signOut,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+
+  // firestore helpers
+  serverTimestamp,
+  doc,
+  setDoc,
+  getDoc,
+  addDoc,
+  updateDoc,
+  increment,
+  query,
+  where,
+  orderBy,
+  limit,
+  onSnapshot,
+  collection,
+  arrayUnion,
+  getDocs,
+
+  // storage helpers
+  storageRef,
+  uploadBytes,
+  getDownloadURL,
+
+  // project helpers
+  createCampaign,
+  addDonation
+};
+
+console.log("Firebase initialized successfully for AidReach");
+
+// optional named exports (not required but safe)
+export {
+  app,
+  auth,
+  db,
+  storage,
+  createCampaign,
+  addDonation
+};

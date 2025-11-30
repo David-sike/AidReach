@@ -1,0 +1,334 @@
+/* Responsive styles */
+@media (max-width: 768px) {
+  .navbar ul {
+    flex-direction: column;
+    align-items: flex-start;
+    display: none;
+    width: 100%;
+    
+  }
+
+  .navbar ul.show {
+    display: flex;
+  }
+
+
+  .navbar a {
+    padding: 12px 16px;
+    font-size: 14px;
+    width: 100%;
+  }
+
+  .header {
+    height: auto;
+  }
+}
+
+@media (max-width: 480px) {
+  .navbar a {
+    padding: 10px 8px;
+    font-size: 12px;
+  }
+}
+@font-face {
+    font-family: 'Outfit';
+    src: url('Outfit-Black.woff2') format('woff2'),
+        url('Outfit-Black.woff') format('woff');
+    font-weight: 900;
+    font-style: normal;
+    font-display: swap;
+}
+@media (max-width: 768px) {
+  .header-content h1 {
+    font-size: 2rem;
+  }
+  .header-content p {
+    font-size: 1rem;
+  }
+}
+@media (max-width: 600px) {
+  .campaign-card {
+    width: 100%;
+    min-width: 0;
+  }
+}
+/* Responsive styles for donation navbar*/
+@media (min-width: 0px) and (max-width: 768px)  {
+  .donation-navbar .nav-links {
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+  }
+  .donation-navbar .nav-links a {
+    padding: 12px 16px;
+    font-size: 14px;
+    width: 100%;
+  }
+}
+@media (max-width: 480px) {
+  .donation-navbar .nav-links a {
+    padding: 10px 8px;
+    font-size: 12px;
+  }
+} 
+html{
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Outfit';
+}
+
+.donation-navbar {
+    position: sticky;
+    top: 0;
+    z-index: 999;
+    width: 100%;
+    background-color: #ffffff;
+    padding: 0.5rem 2rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    margin-bottom: 3rem;
+}
+
+.donation-nav-container {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    position: relative;
+    height: 55px; 
+}
+
+.donation-navbar .nav-logo {
+    height: 48px; 
+    margin-right: 1.5rem;
+    display: block;
+    flex-shrink: 0;
+}
+
+.donation-navbar .nav-links {
+    list-style: none;
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+    margin-left: 0;
+    margin-top: 1rem;
+    padding: 0;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    justify-content: center;
+    width: auto;
+    height: 100%;
+}
+
+.donation-navbar .nav-links li {
+    margin: 0;
+}
+
+.donation-navbar .nav-links a {
+    display: flex;
+    align-items: center;
+    color: black;
+    text-decoration: none;
+    padding: 24px 24px;
+    font-size: 18px;
+    font-family: 'Outfit', sans-serif;
+    text-align: center;
+    height: 100%;
+}
+
+.donation-navbar .nav-links a:hover {
+    color: #4A249D;
+}
+
+.container {
+      display: flex;
+      height:max-content;
+      width: 70px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.1);
+      border-radius: 20px;
+      overflow: hidden;
+      background-color: #ffffff;
+    }
+
+    .left, .right {
+      flex: 1;
+      padding: 40px;
+    }
+
+    .left {
+      background: #ffffff;
+      margin-left: -1rem;
+    }
+
+    .right {
+      background: #e4e4e4;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #4A249D;
+      margin-right: -1rem;
+      box-shadow: 0 10 0 0px rgba(0,0,0,0.1);
+    }
+
+
+    .app-name {
+      font-weight: 700;
+      color: #4A249D;
+      font-size: 20px;
+      text-align: center;
+    }
+
+    .create-account {
+      text-align: center;
+      margin: 20px 0;
+      font-weight: 600;
+    }
+
+    .social-btns {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .social-btns button {
+      flex: 1;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      background: #fff;
+      cursor: pointer;
+    }
+    .or-divider {
+      text-align: center;
+      margin: 20px 0;
+      position: relative;
+    }
+    .form-group {
+      margin: 20px 0;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      margin-top: 10px;
+    }
+
+    .sign-up-btn {
+      width: 100%;
+      padding: 12px;
+      background: #4A249D;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .sign-up-btn:hover {
+      background: #804fe9;
+    }
+
+    .right p {
+      font-size: 27px;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    .right p span {
+      display: block;
+      font-size: 20px;
+      margin-top: 10px;
+      font-weight: 500;
+    }
+
+    /* Nav Bar */
+    .nav-logo {
+      height: 40px;
+      margin-right: 1.5rem;
+      display: block;
+    }
+
+    .navbar {
+      position: sticky;
+      top: 0;
+      z-index: 999;
+      width: 100%;
+      background-color: #ffffff;
+      padding: 0.5rem 2rem;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.5rem;
+    }
+
+    .nav-links {
+      list-style: none;
+      display: flex;
+      gap: 1.5rem;
+      justify-content: center;
+
+    }
+
+    .navbar li {
+      position: relative; /* Needed for dropdown positioning */
+      text-decoration:none;
+    }
+
+    .navbar a {
+      display: block;
+      color: black;
+      text-decoration: none;
+      padding: 12px 16px;
+      font-size: 16px;
+    }
+
+    .navbar a:hover {
+          color: #4A249D;
+    }
+
+    .dropdown-menu {
+      display: none;
+      position: absolute;
+      list-style: none;
+      background: white;
+      top: 100%;
+      left: 0;
+      min-width: 160px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      z-index: 100;
+    }
+
+    .dropdown.active .dropdown-menu {
+      display: block;
+    }
+
+
+.navbar .dropdown-toggle::after {
+  display: none !important;
+}
+    .toggle-link {
+      color: #6a4eff;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: underline;
+    }
+
+    /* Simple fade animation */
+    .fade {
+      animation: fadeIn 0.4s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.98); }
+      to { opacity: 1; transform: scale(1); }
+    }

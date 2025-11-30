@@ -47,88 +47,36 @@
 </div><br>
 
 
-  <section class="featured" aria-label="Featured campaign" data-campaign-id="7" onclick="window.location.href='Campaign.html?id=7'">
-    <!-- IMAGE SIDE -->
-    <div class="featured__media">
-      <img src="SDP/nigeria-9417.jpg" alt="Young child holding bread" />
-      <span class="featured__pill" aria-label="Urgent campaign">Urgent</span>
-    </div>
+<section class="featured" aria-label="Featured campaign">
+  <!-- IMAGE SIDE -->
+  <div class="featured__media">
+    <img src="" alt="Featured campaign image" />
+    <span class="featured__pill" aria-label="Featured campaign">Featured</span>
+  </div>
 
-    <!-- CONTENT SIDE -->
-    <div class="featured__content">
-      <h2 class="featured__eyebrow">Give emergency aid in Adamawa</h2>
-      <p class="featured__desc">
-        Shared meals will provide emergency food assistance to families in Adamawa.
-      </p>
+  <!-- CONTENT SIDE -->
+  <div class="featured__content">
+    <h2 class="featured__eyebrow">Loading featured campaign…</h2>
+    <p class="featured__desc">
+      Please wait while we load the latest campaign details.
+    </p>
 
-      <div class="featured__actions">
-        <button class="btn btn--outline" type="button">Read more</button>
-        <button class="btn btn--primary" type="button">Donate now</button>
-      </div>
+    <div class="featured__actions">
+      <button class="btn btn--outline" type="button">Read more</button>
+      <button class="btn btn--primary" type="button">Donate now</button>
     </div>
-  </section>
+  </div>
+</section>
 
-<div class="campaign-grid">
-    <div class="campaign-card" data-campaign-id="1" onclick="window.location.href='Campaign.html?id=1'">
-        <img src="SDP/aid 4.jpg" alt="Campaign Image">
-        <div class="campaign-content">
-        <h3>Leadership Initiatives Students Creating Change | <a href="#"> Read more</a></h3>
-        <small class="category">Organizer</small>
-        <p class="donation-info">₦85,000 out of ₦100,000 goal</p>
-        <p class="days-left">75 days to go</p>
-        </div>
-    </div>
 
-    <div class="campaign-card" data-campaign-id="2" onclick="window.location.href='Campaign.html?id=2'">
-    <img src="SDP/aid.jpg" alt="Campaign Image">
-        <div class="campaign-content">
-        <h3>Help Nigerian Youth Achieve Their Educational Dreams | <a href="#"> Read more</a></h3>
-        <small class="category">Lisa Simpson</small>
-        <p class="donation-info">₦85,000 out of ₦100,000 goal</p>
-        <p class="days-left">75 days to go</p>
-        </div>
-    </div>
-    <div class="campaign-card" data-campaign-id="3" onclick="window.location.href='Campaign.html?id=3'">
-    <img src="SDP/aid header 2.jpg" alt="Campaign Image">
-        <div class="campaign-content">
-        <h3>Support for Displaced Families in Northern Nigeria | <a href="#"> Read more</a></h3>
-        <small class="category">Jeffery Henry</small>
-        <p class="donation-info">₦85,000 out of ₦100,000 goal</p>
-        <p class="days-left">75 days to go</p>
-        </div>
-    </div> 
-    <div class="campaign-card" data-campaign-id="4" onclick="window.location.href='Campaign.html?id=4'">
-    <img src="SDP/aid header 3.jpg" alt="Campaign Image">
-        <div class="campaign-content">
-        <h3>Adamawa: Individuals Distribute Rice to Displaced Individuals | <a href="#"> Read more</a></h3>
-        <small class="category">Dambunama John</small>
-        <p class="donation-info">₦85,000 out of ₦100,000 goal</p>
-        <p class="days-left">75 days to go</p>
-        </div>
-    </div>
-    <div class="campaign-card" data-campaign-id="5" onclick="window.location.href='Campaign.html?id=5'">
-    <img src="SDP/aid.jpg" alt="Campaign Image">
-        <div class="campaign-content">
-        <h3>Help Nigerian Youth Pursue Vocational Studies | <a href="#"> Read more</a></h3>
-        <small class="category">Innovation Tools</small>
-        <p class="donation-info">₦85,000 out of ₦100,000 goal</p>
-        <p class="days-left">75 days to go</p>
-        </div>
-    </div>
-    <div class="campaign-card" data-campaign-id="6" onclick="window.location.href='Campaign.html?id=6'">
-    <img src="SDP/aid header 2.jpg" alt="Campaign Image">
-        <div class="campaign-content">
-        <h3>Support for Displaced Families in Northern Nigeria | <a href="#"> Read more</a></h3>
-        <small class="category">Organizer</small>
-        <p class="donation-info">₦85,000 out of ₦100,000 goal</p>
-        <p class="days-left">75 days to go</p>
-        </div>
-    </div>
+<div class="campaign-grid" id="home-campaigns-grid">
+  <!-- Campaign cards will be injected here by main.js -->
 </div>
 
 <div class="see-more-container">
-    <button class="see-more">See More</button>
+  <button class="see-more">See More</button>
 </div>
+
 
 <div class="impact-card">
     <img src="SDP/impact.png" alt="Impact Image">
@@ -141,7 +89,6 @@
 <div id="home-campaigns-container{" class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-4"}> </div>
 <div id="footer-placeholder"></div>
 <script type="module" src="firebase.js"></script>
-<script src="campaigns.js"></script>
 <script type="module" src="navbar.js"></script>
 <script src="main.js"></script>
 <script src="footer.js"></script>

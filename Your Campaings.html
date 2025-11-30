@@ -3,34 +3,30 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Your Campaign</title>
-  <link rel="stylesheet" href="styles.css"/>
+  <title>Your Campaigns</title>
+  <link rel="stylesheet" href="styles.css" />
   <style>
     body {
-        background-color: #f9f9fb;
+      background-color: #f9f9fb;
     }
     .header {
-
       padding-top: 1.5rem;
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-bottom: 40px;
+      padding-inline: 3rem;
     }
-
     .header h1 {
       font-size: 2rem;
       font-weight: bold;
       margin: 0;
     }
-
     .header p {
       font-size: 1.1rem;
       color: #555;
       margin-top: 8px;
-      margin-left: 2rem;
     }
-
     .btn {
       background-color: #4A249D;
       color: white;
@@ -39,360 +35,253 @@
       border: none;
       cursor: pointer;
       font-size: 1rem;
-      margin-right: 2rem;
-        transition: background-color 0.3s ease;
+      transition: background-color 0.3s ease;
     }
-
     .btn:hover {
       background-color: #804fe9;
       text-decoration: none;
       color: #fff;
     }
     .cards-container {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(366px, 1fr));
-        gap: 2rem;
-        padding: 20px;
-        max-width: 1200px;
-        margin: 0 auto;
-        padding-left: 6rem;
-        
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 2rem;
+      padding: 20px 3rem 40px 3rem;
+      max-width: 1200px;
+      margin: 0 auto;
     }
-
     .card {
       background: white;
       border-radius: 16px;
       box-shadow: 0 2px 2px 0px rgba(0,0,0,0.1);
       padding: 14px;
-      width: 420px;
+      cursor: pointer;
     }
-
     .card img {
-      width:100%;
+      width: 100%;
       height: 200px;
-      object-fit:fill;
+      object-fit: cover;
       border-radius: 12px;
       margin-bottom: 10px;
     }
-
     .card h6 {
       font-size: 1rem;
-      font-weight:600;
+      font-weight: 600;
       margin-bottom: .7rem;
     }
-
     .card .progress-info {
       font-size: 0.9rem;
       color: #444;
       margin-bottom: 8px;
     }
-
     .progress-info span {
       color: #6b21a8;
       font-weight: bold;
     }
-
     .status {
       float: right;
       font-weight: 500;
-      color: rgb(0, 0, 0);
+      color: #000000;
     }
-  .progress{position:relative;
-           background:#e5e7eb;
-           border-radius:8px;
-           height:10px;
-           overflow:hidden
-          }
-
-.progress__fill{
-          height:100%;
-          width:0;
-          border-radius:8px;
-          transition:width .6s ease
-        }
-
-.progress__text{
-          display:block;
-          margin-top:6px;
-          font-size:.9rem
-        }
-
+    .progress {
+      position: relative;
+      background: #e5e7eb;
+      border-radius: 8px;
+      height: 10px;
+      overflow: hidden;
+      margin-top: 4px;
+    }
+    .progress__fill {
+      height: 100%;
+      width: 0;
+      border-radius: 8px;
+      background: linear-gradient(90deg, #4A249D, #8b5cf6);
+      transition: width .6s ease;
+    }
+    .progress__text {
+      display: block;
+      margin-top: 6px;
+      font-size: .9rem;
+    }
     .card-footer {
       display: flex;
       justify-content: space-between;
       font-size: 0.85rem;
       color: #000000;
-      margin-bottom: 10px;
+      margin-top: 8px;
       background-color: #f1f1f168;
+      padding: 6px 8px;
+      border-radius: 8px;
     }
-
     .card-actions {
       display: flex;
       justify-content: space-between;
       font-size: 0.9rem;
       font-weight: 500;
-      }
-
+      margin-top: 10px;
+    }
     .card-actions button {
       background: none;
       border: none;
       cursor: pointer;
       color: black;
     }
-
     .card-actions button:hover {
       text-decoration: underline;
     }
+    .dashboard-message {
+      max-width: 800px;
+      margin: 0 auto 20px auto;
+      padding: 12px 16px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 500;
+      text-align: center;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      display: none;
+    }
+    .dashboard-message.success {
+      background-color: #e6fbe8;
+      color: #166534;
+      border-left: 5px solid #22c55e;
+    }
+    .dashboard-message.error {
+      background-color: #fde2e2;
+      color: #991b1b;
+      border-left: 5px solid #ef4444;
+    }
+    /* Update modal */
+    .update-modal {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    .update-modal-backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.45);
+    }
+    .update-modal-content {
+      position: relative;
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 20px 22px;
+      max-width: 480px;
+      width: 90%;
+      box-shadow: 0 18px 40px rgba(15, 23, 42, 0.35);
+      z-index: 1001;
+    }
+    .update-modal-content h3 {
+      margin: 0 0 4px 0;
+      font-size: 1.2rem;
+      font-weight: 600;
+    }
+    .update-modal-sub {
+      margin: 0 0 12px 0;
+      font-size: 0.9rem;
+      color: #6b7280;
+    }
+    .update-modal-content textarea {
+      width: 100%;
+      border-radius: 10px;
+      border: 1px solid #d1d5db;
+      padding: 10px 12px;
+      font-size: 0.95rem;
+      resize: vertical;
+      min-height: 90px;
+      outline: none;
+    }
+    .update-modal-content textarea:focus {
+      border-color: #4A249D;
+      box-shadow: 0 0 0 1px rgba(74, 36, 157, 0.35);
+    }
+    .update-modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .update-modal-actions button {
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-size: 0.9rem;
+      border: none;
+      cursor: pointer;
+    }
+    #update-cancel-btn {
+      background: #e5e7eb;
+      color: #111827;
+    }
+    #update-save-btn {
+      background: #4A249D;
+      color: #ffffff;
+    }
+    #update-save-btn:hover {
+      background: #804fe9;
+    }
   </style>
 </head>
-<nav class="navbar" style="display: flex; align-items: center; justify-content: space-between;">
+<body>
+  <nav class="navbar" style="display: flex; align-items: center; justify-content: space-between;">
     <img src="SDP/logo.png" alt="Logo" class="nav-logo" style="height:40px; margin-right: 20px;">
     <ul class="nav-links" id="nav-links" style="display: flex; justify-content: center; flex: 1; list-style: none; padding: 0; margin: 0;">
-        <li style="margin: 0 15px;"><a class="home">Home</a></li>
-        <li class="dropdown" style="margin: 0 15px;">
-            <a class="dropdown-toggle">Choose a cause</a>
-            <ul class="dropdown-menu">
-                <li><a class="donate">Donate</a></li>
-                <li><a class="yourDonations">Your donations</a></li>
-            </ul>
-        </li>
-        <li class="dropdown" style="margin: 0 15px;">
-            <a class="dropdown-toggle">Campaign</a>
-            <ul class="dropdown-menu">
-                <li><a class="createCampaign">Create a campaign</a></li>
-                <li><a class="yourCampaign">Your Campaigns</a></li>
-            </ul>
-        </li>
+      <li style="margin: 0 15px;"><a class="home">Home</a></li>
+      <li class="dropdown" style="margin: 0 15px;">
+        <a class="dropdown-toggle">Choose a cause</a>
+        <ul class="dropdown-menu">
+          <li><a class="donate">Donate</a></li>
+          <li><a class="yourDonations">Your donations</a></li>
+        </ul>
+      </li>
+      <li class="dropdown" style="margin: 0 15px;">
+        <a class="dropdown-toggle">Campaign</a>
+        <ul class="dropdown-menu">
+          <li><a class="createCampaign">Create a campaign</a></li>
+          <li><a class="yourCampaign">Your Campaigns</a></li>
+        </ul>
+      </li>
     </ul>
-</nav>
+  </nav>
 
   <div class="header">
     <div>
-      <h1>Welcome back, David <span id="signupName"></span></h1>
-      <p>Here’s an overview of your fundraising campaigns</p>
+      <h1>Welcome back, <span id="signupName"></span></h1>
+      <p>Here is an overview of your fundraising campaigns</p>
     </div>
     <button class="btn" id="newCampaignBtn">Start a New Campaign</button>
   </div>
 
-<div class="cards-container">
-  <!-- Card 1 -->
-  <div class="card" data-donation-id="1" onclick="window.location.href='Your Campaigns.html?id=1'">
-    <img src="SDP/aid 4.jpg" alt="Campaign Image">
-    <div class="donation-content">
-      <h6>Leadership Initiatives Students Creating Change</h6>
-      <div class="progress-info">
-        <span>₦0</span> raised of ₦100,000 goal
-        <span class="status">LIVE</span>
-      </div>
-    <div class="progress" data-campaign="CAMPAIGN_ID">
-      <div class="progress__fill"></div>
-      <span class="progress__text"></span>
-    </div>
+  <div id="your-campaign-message" class="dashboard-message" style="display:none;"></div>
 
-      <div class="card-footer">
-        <span>10 Donations</span>
-        <span>Created on July 18, 2025</span>
-      </div>
-      <div class="card-actions">
-        <button>View</button>
-        <button>Edit</button>
-        <button>Share</button>
-        <button>Close</button>
+  <div class="cards-container" id="your-campaigns-list">
+    <p style="text-align:center; padding:20px; color:#64748b;">
+      Loading your campaigns.
+    </p>
+  </div>
+
+  <!-- Update modal -->
+  <div id="update-modal" class="update-modal">
+    <div class="update-modal-backdrop"></div>
+    <div class="update-modal-content">
+      <h3>Post an update</h3>
+      <p class="update-modal-sub">Let supporters know what is happening with this campaign.</p>
+      <textarea id="update-text" placeholder="Type your update here..."></textarea>
+      <div class="update-modal-actions">
+        <button id="update-cancel-btn" type="button">Cancel</button>
+        <button id="update-save-btn" type="button">Post update</button>
       </div>
     </div>
   </div>
 
-  <!-- Card 2 -->
-  <div class="card" data-donation-id="2" onclick="window.location.href='Your Campaigns?id=2'">
-    <img src="SDP/aid header 3.jpg" alt="Campaign Image">
-    <div class="donation-content">
-      <h6>Adamawa: Individuals Distribute Rice to displaced Individuals</h6>
-      <div class="progress-info">
-        <span>₦0</span> raised of ₦100,000 goal
-        <span class="status">LIVE</span>
-      </div>
-    <div class="progress" data-campaign="CAMPAIGN_ID">
-      <div class="progress__fill"></div>
-      <span class="progress__text"></span>
-    </div>
+  <div id="footer-placeholder"></div>
 
-      <div class="card-footer">
-        <span>10 Donations</span>
-        <span>Created on July 18, 2025</span>
-      </div>
-      <div class="card-actions">
-        <button>View</button>
-        <button>Edit</button>
-        <button>Share</button>
-        <button>Close</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Card 3 -->
-  <div class="card" data-donation-id="3" onclick="window.location.href='Your Campaigns?id=3'">
-    <img src="SDP/aid header 2.jpg" alt="Campaign Image">
-    <div class="donation-content">
-      <h6>Support for Displaced Families in Northern Nigeria</h6>
-      <div class="progress-info">
-        <span>₦0</span> raised of ₦100,000 goal
-        <span class="status">LIVE</span>
-      </div>
-    <div class="progress" data-campaign="CAMPAIGN_ID">
-      <div class="progress__fill"></div>
-      <span class="progress__text"></span>
-    </div>
-
-      <div class="card-footer">
-        <span>10 Donations</span>
-        <span>Created on July 18, 2025</span>
-      </div>
-      <div class="card-actions">
-        <button>View</button>
-        <button>Edit</button>
-        <button>Share</button>
-        <button>Close</button>
-      </div>
-    </div>
-  </div>
-  <!-- Card 4 -->
-  <div class="card" data-donation-id="4" onclick="window.location.href='Your Campaigns?id=4'">
-    <img src="SDP/aid.jpg" alt="Campaign Image">
-    <div class="donation-content">
-      <h6>Help Nigerian Youth Achieve Their Educational Dreams</h6>
-      <div class="progress-info">
-        <span>₦0</span> raised of ₦100,000 goal
-        <span class="status">LIVE</span>
-      </div>
-    <div class="progress" data-campaign="CAMPAIGN_ID">
-      <div class="progress__fill"></div>
-      <span class="progress__text"></span>
-    </div>
-
-      <div class="card-footer">
-        <span>10 Donations</span>
-        <span>Created on July 18, 2025</span>
-      </div>
-      <div class="card-actions">
-        <button>View</button>
-        <button>Edit</button>
-        <button>Share</button>
-        <button>Close</button>
-      </div>
-    </div>
-  </div>
-</div>
-<div id="footer-placeholder"></div>
-<script type="module" src="firebase.js"></script>
-<script src="navbar.js"></script>
-<script src="main.js"></script>
-<script src="footer.js"></script>
-<script>
-  const newCampaignButton = document.querySelector('.btn');
-  if(newCampaignButton){
-    newCampaignButton.addEventListener('click', (e) => {
-      window.location.href = 'New Campaign.html';
-    });
-  }
-
-  const donations = {
-    1: {
-      title: "Adamawa: Individuals Distribute Polio Vaccine to displaced Individuals",
-      raised: 10000,
-      goal: 100000,
-      donations: 10,
-      createdOn: "July 18, 2025",
-      status: "LIVE"
-    },
-    2: {
-      title: "Adamawa: Individuals Distribute Polio Vaccine to displaced Individuals",
-      raised: 10000,
-      goal: 100000,
-      donations: 10,
-      createdOn: "July 18, 2025",
-      status: "LIVE"
-    },
-    3: {
-      title: "Adamawa: Individuals Distribute Polio Vaccine to displaced Individuals",
-      raised: 10000,
-      goal: 100000,
-      donations: 10,
-      createdOn: "July 18, 2025",
-      status: "LIVE"
-    },
-    4: {
-      title: "Adamawa: Individuals Distribute Polio Vaccine to displaced Individuals",
-      raised: 10000,
-      goal: 100000,
-      donations: 10,
-      createdOn: "July 18, 2025",
-      status: "LIVE"
-    }
-  
-  };
-    // Button → New Campaign
-    document.getElementById('newCampaignBtn')?.addEventListener('click', () => {
-      window.location.href = 'New Campaign.html';
-    });
-
-    // Apply progress styles & text to each card
-    document.querySelectorAll('.card').forEach(card => {
-      const id = card.getAttribute('data-donation-id');
-      const data = donations[id];
-      if (!data) return;
-
-      // raised/goal/status text (keeps your HTML but ensures consistency)
-      const raisedEl = card.querySelector('[data-raised]');
-      const goalEl   = card.querySelector('[data-goal]');
-      const statusEl = card.querySelector('[data-status]');
-      const donEl    = card.querySelector('[data-donations]');
-      const createdEl= card.querySelector('[data-created]');
-
-      if (raisedEl)  raisedEl.textContent = `₦${Number(data.raised).toLocaleString()}`;
-      if (goalEl)    goalEl.textContent   = Number(data.goal).toLocaleString();
-      if (statusEl)  statusEl.textContent = data.status || 'LIVE';
-      if (donEl)     donEl.textContent    = `${data.donations} Donations`;
-      if (createdEl) createdEl.textContent= `Created on ${data.createdOn}`;
-
-      // progress bar fill
-      const fill  = card.querySelector('.progress__fill');
-      const ptext = card.querySelector('[data-progress-text]');
-      if (fill){
-        const pct = Math.min(100, Math.max(0, (data.raised / data.goal) * 100));
-        requestAnimationFrame(() => { fill.style.width = pct + '%'; });
-        if (ptext){
-          ptext.textContent = `${pct.toFixed(0)}% funded`;
-        }
-      }
-    });
-  </script>
-
-  <script type="module"> // check if this works
-  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
-  import { app } from "./firebase.html"; // adjust path if needed
-
-  const auth = getAuth(app);
-
-  onAuthStateChanged(auth, (user) => {
-    const el = document.getElementById('userName');
-    if (!el) return;
-    if (user) {
-      el.textContent = user.displayName || user.email;
-      // optional: cache for other pages
-      localStorage.setItem('fullName', user.displayName || user.email);
-    } else {
-      el.textContent = localStorage.getItem('fullName') || 'Friend';
-    }
-  });
-
-
-
-</script>
-<script type="module" src="navbar.js"></script>
-<script type="module" src="firebase.js"></script>
-<script src="newCampaign.js"></script>
-
+  <script type="module" src="firebase.js"></script>
+  <script type="module" src="navbar.js"></script>
+  <script src="yourCampaigns.js"></script>
+  <script src="main.js"></script>
+  <script src="footer.js"></script>
 </body>
 </html>
-
- 

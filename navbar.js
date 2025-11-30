@@ -11,14 +11,14 @@ const SIGNUP_PAGE = "Sign up.html"; // login mode via ?mode=login
 // ----------------------------------------------------
 
 // You can override this by defining window._FIREBASE_CONFIG_ before loading navbar.js
-const CONFIG = window._FIREBASE_CONFIG_ || {
-  apiKey: "AIzaSyDsEkQhydktiMdyjexvIquKnWhIsACkEFk",
-  authDomain: "crowdfunding-project-bb723.firebaseapp.com",
-  projectId: "crowdfunding-project-bb723",
-  storageBucket: "crowdfunding-project-bb723.firebasestorage.app",
-  messagingSenderId: "614354054717",
-  appId: "1:614354054717:web:004107096ad21590904454",
-  measurementId: "G-M7R86VZPV1"
+const firebaseConfig = {
+  apiKey: "AIzaSyBg_xrflYlYEPk6txfP-5iR0y-tBRFZGcA",
+  authDomain: "aidreach-2d1ec.firebaseapp.com",
+  projectId: "aidreach-2d1ec",
+  storageBucket: "aidreach-2d1ec.firebasestorage.app",
+  messagingSenderId: "1045366476824",
+  appId: "1:1045366476824:web:245e9085184f5cbf98336d",
+  measurementId: "G-RZ5EPWMM33"
 };
 
 // Reuse existing app if already initialized elsewhere
@@ -170,9 +170,11 @@ if (donateLink) {
 }
 if (youDonation) {
   youDonation.addEventListener('click', (e) => {
-    window.location.href = '#';
+    e.preventDefault();
+    window.location.href = 'Your donations.html';
   });
 }
+
 if (createCampaign) {
   createCampaign.addEventListener('click', (e) => {
     window.location.href = 'New Campaign.html';

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>AidReach – Campaign Lists (Static)</title>
+<title>AidReach – Campaign Lists</title>
 <style>
   :root{
     --bg:#f4f6f8;
@@ -48,7 +48,6 @@
   .sidebar-footer{ margin-top: 145vh; padding-top:16px; border-top:1px dashed #e2e8f0 }
 
   /* Main */
-  
   main{ padding:18px }
   .topbar{
     background:var(--panel); border-radius:14px; padding:10px 16px; box-shadow:var(--shadow);
@@ -64,8 +63,44 @@
   .right-bar{ display:flex; align-items:center; gap:16px; color:var(--muted) }
   .lang{ background:#f1f5f9; padding:6px 10px; border-radius:10px }
   .avatar{ width:34px; height:34px; border-radius:50%; background:linear-gradient(135deg,#fda4af,#a78bfa) }
-  .profile{ display:flex; align-items:center; gap:10px }
-  .profile small{ display:block; font-size:12px; color:var(--muted) }
+  /* Profile dropdown styles */
+  .profile-dropdown {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+  }
+  .profile-dropdown small{ display:block; font-size:12px; color:var(--muted) }
+  .profile-dropdown-menu {
+    display: none;
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    list-style: none;
+    margin: 0;
+    padding: 8px 0;
+    z-index: 1000;
+    min-width: 160px;
+  }
+  .profile-dropdown-menu li { margin: 0; padding: 0; }
+  .profile-dropdown-menu li a {
+    display: block;
+    padding: 8px 16px;
+    font-size: 14px;
+    color: var(--ink);
+    text-decoration: none;
+  }
+  .profile-dropdown-menu li a:hover {
+    background: #f1f5f9;
+  }
+  .profile-dropdown:hover .profile-dropdown-menu {
+    display: block;
+  }
   
   /* Page header */
   .page{
@@ -118,12 +153,8 @@
       <a class="nav-item" href="admin.html"><span class="nav-icon">📊</span> Dashboard</a>
       <a class="nav-item active" href="#"><span class="nav-icon">🧾</span> Campaigns</a>
       <a class="nav-item" href="users.html"><span class="nav-icon">👥</span> Users</a>
-      
     </nav>
-    <div class="sidebar-footer">
-      <a class="nav-item" href="#"><span class="nav-icon">⚙️</span> Settings</a>
-      <a class="nav-item" href="#"><span class="nav-icon">⏻</span> Logout</a>
-    </div>
+    <!-- Removed sidebar footer; settings and logout moved to profile dropdown -->
   </aside>
 
   <!-- MAIN -->
@@ -131,16 +162,20 @@
     <!-- Topbar -->
     <div class="topbar">
       <div class="left-bar">
-        <span style="font-size:20px">≡</span>
-        <div class="search"><span>🔍</span><input placeholder="Search"/></div>
+        <!-- Removed hamburger icon -->
+        <div class="search"><span>🔍</span><input id="campaignSearch" placeholder="Search"/></div>
       </div>
       <div class="right-bar">
         <span>🔔</span>
         <div class="lang">🇬🇧 English ▾</div>
-        <div class="profile">
+        <div class="profile-dropdown">
           <div class="avatar"></div>
-          <div><strong>Moni Roy</strong><small>Admin</small></div>
+          <div><strong>SGawd </strong><small>Admin</small></div>
           <span>▾</span>
+          <ul class="profile-dropdown-menu">
+            <li><a href="settings.html">Settings</a></li>
+            <li><a href="Home.html" id="logout">Logout</a></li>
+          </ul>
         </div>
       </div>
     </div>
@@ -153,63 +188,15 @@
         <div class="thead" role="row">
           <div>ID</div>
           <div>CAMPAIGN TITLE</div>
-          <div>ORGANIIZER</div>
+          <div>ORGANIZER</div>
           <div>START DATE</div>
           <div>END DATE</div>
           <div>GOAL AMOUNT</div>
           <div>STATUS</div>
         </div>
-
-                <!-- Rows -->
-                <div class="row">
-        <div>00001</div><div>Christine Brooks</div>
-        <div>No. 14 Ribadu Road, Yola, Adamawa</div>
-        <div>04 Sep 2024</div><div>₦34,295</div><div><span class="badge closed">CLOSED</span></div>
-        </div>
-        <div class="row">
-        <div>00002</div><div>Rosie Pearson</div>
-        <div>Sabon Layi, Maiduguri, Borno</div>
-        <div>28 May 2024</div><div>₦34,295</div><div><span class="badge pending">PENDING</span></div>
-        </div>
-        <div class="row">
-        <div>00003</div><div>Darrell Caldwell</div>
-        <div>Old Airport Road, Bauchi, Bauchi</div>
-        <div>23 Nov 2024</div><div>₦50,000</div><div><span class="badge rejected">REJECTED</span></div>
-        </div>
-        <div class="row">
-        <div>00004</div><div>Gilbert Johnston</div>
-        <div>Federal Low-Cost Estate, Damaturu, Yobe</div>
-        <div>05 Feb 2024</div><div>₦34,295</div><div><span class="badge closed">CLOSED</span></div>
-        </div>
-        <div class="row">
-        <div>00005</div><div>Alan Cain</div>
-        <div>Bole Road, Gombe, Gombe</div>
-        <div>29 Jul 2024</div><div>₦34,295</div><div><span class="badge pending">PENDING</span></div>
-        </div>
-        <div class="row">
-        <div>00006</div><div>Alfred Murray</div>
-        <div>Jauro Baba Street, Jalingo, Taraba</div>
-        <div>15 Aug 2024</div><div>₦34,295</div><div><span class="badge closed">CLOSED</span></div>
-        </div>
-        <div class="row">
-        <div>00007</div><div>Maggie Sullivan</div>
-        <div>Sabon Gari, Mubi South, Adamawa</div>
-        <div>21 Dec 2024</div><div>₦34,295</div><div><span class="badge pending">PENDING</span></div>
-        </div>
-        <div class="row">
-        <div>00008</div><div>Rosie Todd</div>
-        <div>Biu Main Market Area, Biu, Borno</div>
-        <div>30 Apr 2024</div><div>₦34,295</div><div><span class="badge live">LIVE</span></div>
-        </div>
-        <div class="row">
-        <div>00009</div><div>Dollie Hines</div>
-        <div>Potiskum Bypass, Potiskum, Yobe</div>
-        <div>09 Jan 2024</div><div>₦34,295</div><div><span class="badge live">LIVE</span></div>
-        </div>
-
-
+        <!-- Campaign rows will be inserted here -->
         <div class="foot">
-          <div>Showing 1–09 of 78</div>
+          <div>Showing 1–0 of 0</div>
           <div class="pager">
             <button class="btn" aria-label="Previous">〈</button>
             <button class="btn" aria-label="Next">〉</button>
@@ -220,62 +207,29 @@
   </main>
 </div>
 
+<!-- Load campaign list logic -->
+<!-- admin.html -->
+<script src="adminLogout.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- adminCampaigns.html -->
+<script type="module" src="./adminCampaigns.js"></script>
+
+
+
+  <!-- Logout handler for dropdown -->
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const logoutLink = document.getElementById("logout");
+      if (logoutLink) {
+        logoutLink.addEventListener("click", (e) => {
+          e.preventDefault();
+          localStorage.removeItem("loggedInAdmin");
+          sessionStorage.removeItem("loggedInAdmin");
+          window.location.href = "Sign up.html";
+        });
+      }
+    });
+  </script>
 </body>
-<script type="module">
-import { db } from "./firebase.js";
-import { collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
-
-async function loadCampaigns() {
-  const table = document.querySelector(".table");
-  if (!table) return;
-
-  // remove existing rows to avoid duplicates
-  table.querySelectorAll('.row').forEach(r => r.remove());
-
-  const querySnapshot = await getDocs(collection(db, "campaigns"));
-
-  querySnapshot.forEach(doc => {
-    const c = doc.data() || {};
-
-    const rowHtml = `
-      <div class="row">
-        <div>${escapeHtml(c.id ?? '')}</div>
-        <div>${escapeHtml(c.title ?? '')}</div>
-        <div>${escapeHtml(c.organizer ?? '')}</div>
-        <div>${escapeHtml(c.startDate ?? '')}</div>
-        <div>₦${Number(c.goal ?? 0).toLocaleString()}</div>
-        <div><span class="badge ${toBadgeClass(c.status)}">${escapeHtml((c.status || '').toUpperCase())}</span></div>
-      </div>
-    `;
-
-    const foot = table.querySelector('.foot');
-    if (foot) {
-      foot.insertAdjacentHTML('beforebegin', rowHtml);
-    } else {
-      table.insertAdjacentHTML('beforeend', rowHtml);
-    }
-  });
-}
-
-function toBadgeClass(status) {
-  if (!status) return 'pending';
-  const s = String(status).toLowerCase();
-  if (s.includes('closed')) return 'closed';
-  if (s.includes('pending')) return 'pending';
-  if (s.includes('rejected')) return 'rejected';
-  if (s.includes('live')) return 'live';
-  return 'pending';
-}
-
-function escapeHtml(str) {
-  return String(str)
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&#39;');
-}
-
-document.addEventListener("DOMContentLoaded", loadCampaigns);
-</script>
 </html>
