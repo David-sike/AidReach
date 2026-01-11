@@ -1,11 +1,14 @@
-// firebase.js
+// Firebase configuration and helpers for the AidReach project.
+//
+// This module initializes Firebase only once and exposes the
+// configured app, authentication, Firestore and storage instances.
+// It also exports a helper for creating a new campaign and stores
+// useful Firestore methods on a global object so that non‑module
+// scripts can still access them.  The configuration values are
+// identical to those used in the upstream repository and can be
+// overridden by assigning a new value to `window._FIREBASE_CONFIG_`.
 
-import { 
-  initializeApp,
-  getApps,
-  getApp
-} from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
-
+import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
 import {
   getAuth,
   onAuthStateChanged,
@@ -13,7 +16,6 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword
 } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
-
 import {
   getFirestore,
   serverTimestamp,
@@ -28,11 +30,8 @@ import {
   orderBy,
   limit,
   onSnapshot,
-  increment,
-  arrayUnion          
+  increment
 } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
-
-
 import {
   getStorage,
   ref as storageRef,
@@ -40,8 +39,12 @@ import {
   getDownloadURL
 } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-storage.js";
 
-// AidReach config
-const firebaseConfig = {
+// AidReach Firebase configuration.  You can replace these values with
+// your own project details if you fork this repository.  The values
+// below are published in the upstream repository so they are safe to
+// commit here.  If `window._FIREBASE_CONFIG_` has been populated
+// (e.g. by another script), those values will be used instead.
+const firebaseConfig = window._FIREBASE_CONFIG_ || {
   apiKey: "AIzaSyBg_xrflYlYEPk6txfP-5iR0y-tBRFZGcA",
   authDomain: "aidreach-2d1ec.firebaseapp.com",
   projectId: "aidreach-2d1ec",
@@ -51,10 +54,14 @@ const firebaseConfig = {
   measurementId: "G-RZ5EPWMM33"
 };
 
-// make config visible to navbar.js if it wants to override
+// Persist the config for other modules (e.g. navbar.js) to override if
+// necessary.  Do this before initializing the app so any overrides
+// take effect.
 window._FIREBASE_CONFIG_ = firebaseConfig;
 
-// ✅ Reuse existing app if someone already called initializeApp
+// Only initialise the Firebase app once.  If another module already
+// called `initializeApp()` then `getApps()` will return a non‑empty
+// array and we simply reuse the existing app.
 let app;
 if (getApps().length) {
   app = getApp();
@@ -62,28 +69,26 @@ if (getApps().length) {
   app = initializeApp(firebaseConfig);
 }
 
-// Initialize app and services, and export them for ES modules
+// Create convenience instances for auth, firestore and storage.
+const auth = getAuth(app);
+const db = getFirestore(app);
+const storage = getStorage(app);
 
-export const auth = getAuth(app);
-export const db = getFirestore(app);
-export const storage = getStorage(app);
-
-
-// keep your onAuthStateChanged logic here as you had it
+// Listen for changes to the signed in user.  This replicates the
+// behaviour from the upstream firebase.js file: when a new user
+// authenticates, ensure a corresponding document exists in the
+// `users` collection with sensible defaults.  Errors are caught and
+// logged to avoid breaking the page.
 onAuthStateChanged(auth, async (user) => {
   if (!user) return;
-
   console.log("Logged in user:", user.uid);
-
   try {
     const userRef = doc(db, "users", user.uid);
     const userSnap = await getDoc(userRef);
-
     if (!userSnap.exists()) {
       await setDoc(userRef, {
         displayName: user.displayName || "",
         email: user.email || "",
-        photoURL: user.photoURL || "",
         createdAt: serverTimestamp(),
         role: "user"
       });
@@ -94,10 +99,10 @@ onAuthStateChanged(auth, async (user) => {
   }
 });
 
-// example helper: createCampaign, keep whatever we wrote before
+// Helper to create a new campaign.  This function can be imported
+// elsewhere or accessed via `window.__FIREBASE__.createCampaign`.
 export async function createCampaign(data, user) {
   if (!user) throw new Error("Not signed in");
-
   const campaignRef = await addDoc(collection(db, "campaigns"), {
     ownerId: user.uid,
     title: data.title,
@@ -116,52 +121,13 @@ export async function createCampaign(data, user) {
     endDate: data.endDate || "",
     gallery: data.gallery || []
   });
-
   console.log("Campaign created with id:", campaignRef.id);
   return campaignRef.id;
 }
 
-// ✅ Function: Add a donation and update campaign totals
-async function addDonation(data) {
-  if (!data.campaignId || !data.amount) {
-    throw new Error("Missing donation info: campaignId and amount are required");
-  }
-
-  const amountNum = Number(data.amount);
-  if (isNaN(amountNum) || amountNum <= 0) {
-    throw new Error("Invalid donation amount");
-  }
-
-  // 1) Create donation record
-  const donationRef = await addDoc(collection(db, "donations"), {
-    campaignId: data.campaignId,
-    // New field for admin display
-    campaignName: data.campaignName || data.campaignTitle || "",
-    donorId: data.donorId || "",
-    donorName: data.donorName || "Anonymous",
-    amount: amountNum,
-    message: data.message || "",
-    paymentRef: data.paymentRef || "",
-    status: data.status || "SUCCESS",
-    anonymous: data.anonymous || false,
-    createdAt: serverTimestamp()
-  });
-
-  // 2) Update campaign aggregates
-  const campaignRef = doc(db, "campaigns", data.campaignId);
-  await updateDoc(campaignRef, {
-    amountRaised: increment(amountNum),
-    donationCount: increment(1),
-    updatedAt: serverTimestamp()
-  });
-
-  console.log("✅ Donation added:", donationRef.id);
-  return donationRef.id;
-}
-
-
-
-// expose a global bag for non module scripts like newCampaign.js
+// Expose the core Firebase services and helpers on the global object
+// `window.__FIREBASE__` so that non‑module scripts can access them
+// without using ES modules.  This mirrors the upstream behaviour.
 window.__FIREBASE__ = {
   app,
   auth,
@@ -170,32 +136,25 @@ window.__FIREBASE__ = {
   onAuthStateChanged,
   signOut,
   serverTimestamp,
-
-  // Firestore document helpers
   doc,
   setDoc,
   getDoc,
   addDoc,
   updateDoc,
   increment,
-  arrayUnion, 
-  // Firestore collection query helpers - needed by donation.js
-  collection,
   query,
   where,
   orderBy,
+  limit,
   onSnapshot,
-
-  // Storage helpers
   storageRef,
   uploadBytes,
   getDownloadURL,
-
-  // Custom app helpers
-  createCampaign,
-  addDonation
+  createCampaign
 };
 
-
+// Export the Firebase instances for use by ES modules.  Modules that
+// import this file can destructure `db`, `auth` or `storage` as needed.
+export { app, auth, db, storage };
 
 console.log("Firebase initialized successfully for AidReach");

@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dropdown Navbar</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Outfit', sans-serif;
+    }
+
+    /* Nav Bar */
+    .nav-logo {
+      height: 40px;
+      margin-right: 1.5rem;
+      display: block;
+    }
+
+    .navbar {
+      position: sticky;
+      top: 0;
+      z-index: 999;
+      width: 100%;
+      background-color: #ffffff;
+      padding: 0.5rem 2rem;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .nav-links {
+      list-style: none;
+      display: flex;
+      gap: 1.5rem;
+    }
+
+    .navbar li {
+      position: relative; /* Needed for dropdown positioning */
+      text-decoration:none;
+    }
+
+    .navbar a {
+      display: block;
+      color: black;
+      text-decoration: none;
+      padding: 12px 16px;
+      font-size: 16px;
+    }
+
+    .navbar a:hover {
+      background-color: #c8c8c866;
+      color: #4A249D;
+    }
+
+    .dropdown-menu {
+      display: none;
+      position: absolute;
+      list-style: none;
+      background: white;
+      top: 100%;
+      left: 0;
+      min-width: 160px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      z-index: 100;
+    }
+
+    .dropdown.active .dropdown-menu {
+      display: block;
+    }
+
+    .sign-in {
+      background-color: #dadada;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .get-started {
+      background-color: #4A249D;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .get-started:hover {
+      transition: background 0.3s ease;
+      background-color: #804fe9;
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <img src="SDP/logo.png" alt="Logo" class="nav-logo" style="height:40px;">
+    <ul class="nav-links" id="nav-links">
+      <li><a class="home">Home</a></li>
+      <li class="dropdown">
+        <a class="dropdown-toggle">Choose a cause</a>
+        <ul class="dropdown-menu">
+          <li><a class="donate">Donate</a></li>
+          <li><a class="yourDonations">Your donations</a></li>
+        </ul>
+      </li>
+      <li class="dropdown">
+        <a class="dropdown-toggle">Campaign</a>
+        <ul class="dropdown-menu">
+          <li><a class="createCampaign">Create a campaign</a></li>
+          <li><a class="yourCampaign">Your Campaigns</a></li>
+        </ul>
+      </li>
+    </ul>
+    <div class="nav-buttons">
+      <button class="sign-in">Sign in →</button>
+      <button class="get-started">Get Started</button>
+    </div>
+  </nav>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const dropdownToggles = document.querySelectorAll('.dropdown-toggle');
+
+      dropdownToggles.forEach(toggle => {
+        toggle.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation(); // Stop from bubbling up
+
+          const dropdown = toggle.parentElement;
+
+          // Close all dropdowns first
+          document.querySelectorAll('.dropdown').forEach(d => {
+            if (d !== dropdown) d.classList.remove('active');
+          });
+
+          // Toggle the clicked one
+          dropdown.classList.toggle('active');
+        });
+      });
+
+      // Close dropdowns when clicking outside
+      document.addEventListener('click', () => {
+        document.querySelectorAll('.dropdown').forEach(dropdown => {
+          dropdown.classList.remove('active');
+        });
+      });
+    });
+  </script>
+</body>
+</html>

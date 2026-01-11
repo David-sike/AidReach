@@ -55,6 +55,7 @@ async function handleDonationSubmit(e) {
 
 async function verifyPayment(reference, campaignId, amount) {
   try {
+   
     const verifyRes = await fetch(`${BASE_URL}/api/donations/verify`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -64,20 +65,71 @@ async function verifyPayment(reference, campaignId, amount) {
     const data = await verifyRes.json();
 
     if (data.verified) {
+      // 2. ✅ SUCCESS! Now save to Firebase
+      await saveDonationToFirebase(data, amount, campaignId);
+      
+      // 3. Update the UI
       showSuccessMessage(amount, reference);
     } else {
-      alert("Payment not verified.");
+      alert("Payment verified failed. Please contact support if you were debited.");
     }
   } catch (err) {
     console.error(err);
-    alert("Verification failed.");
+    alert("Verification process failed. Check console.");
   }
 }
+
+// New helper function to save to Firestore
+async function saveDonationToFirebase(backendData, amount, campaignId) {
+  const { 
+    db, doc, getDoc, updateDoc, addDoc, collection, 
+    serverTimestamp, increment, auth 
+  } = window.__FIREBASE__;
+
+  try {
+    // 1. Get donor name from logged-in user
+    const user = auth.currentUser;
+    const donorName = user?.displayName || user?.email || "Anonymous";
+
+    // 2. Get campaign name from campaigns collection
+    const campaignSnap = await getDoc(doc(db, "campaigns", campaignId));
+    const campaignName = campaignSnap.exists()
+      ? (campaignSnap.data().title || "")
+      : "";
+
+    // 3. Save donation with donorName + campaignName included
+    await addDoc(collection(db, "donations"), {
+      campaignId,
+      campaignName,          // NEW
+      donorId: user?.uid || "",
+      donorName,             // NEW
+      amount: Number(amount),
+      email: backendData.email,
+      reference: backendData.reference,
+      createdAt: serverTimestamp(),
+      status: "SUCCESS"
+    });
+
+    // 4. Update campaign totals
+    const campaignRef = doc(db, "campaigns", campaignId);
+    await updateDoc(campaignRef, {
+      amountRaised: increment(Number(amount)),
+      donationCount: increment(1),
+      updatedAt: serverTimestamp()
+    });
+
+    console.log("Donation saved to Firebase with donorName + campaignName!");
+  } catch (error) {
+    console.error("Error saving to Firebase:", error);
+    
+  }
+}
+
 
 function showSuccessMessage(amount, reference) {
   const div = document.createElement("div");
   div.className = "alert alert-success mt-3";
-  div.textContent = `✅ Thank you! ₦${amount.toLocaleString()} received. Ref: ${reference}`;
+  div.textContent = `✅ Thank you! ₦${amount.toLocaleString()} received.`;
   document.getElementById("donation-form").after(div);
 
   // Progress update

@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your donations</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+/* Turn body into a vertical flex container */
+body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+
+/* Main content should expand and push footer down */
+.page-content {
+  flex: 1;
+}
+
+    .donation-header {
+      text-align: left;
+      margin: 30px auto 10px auto;
+      max-width: 1100px;
+      padding-inline: 3rem;
+    }
+
+    .donation-header h1 {
+      font-size: 2rem;
+      margin-bottom: 8px;
+    }
+
+    .donation-header p {
+      font-size: 1rem;
+      color: #64748b;
+    }
+
+    .dashboard-message {
+      max-width: 1100px;
+      margin: 0 auto 20px auto;
+      padding: 12px 16px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 500;
+      text-align: center;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      display: none;
+    }
+
+    .dashboard-message.success {
+      background-color: #e6fbe8;
+      color: #166534;
+      border-left: 5px solid #22c55e;
+    }
+
+    .dashboard-message.error {
+      background-color: #fde2e2;
+      color: #991b1b;
+      border-left: 5px solid #ef4444;
+    }
+
+    .donations-list {
+      max-width: 1100px;
+      margin: 0 auto 40px auto;
+      padding-inline: 3rem;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .donation-row-card {
+      background: #ffffff;
+      border-radius: 14px;
+      padding: 14px 16px;
+      box-shadow: 0 2px 6px rgba(15, 23, 42, 0.06);
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .donation-row-image {
+      width: 80px;
+      height: 80px;
+      border-radius: 10px;
+      object-fit: cover;
+      flex-shrink: 0;
+      border: 1px solid #e5e7eb;
+      background: #f3f4f6;
+    }
+
+    .donation-row-main {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .donation-row-title {
+      font-size: 0.98rem;
+      font-weight: 600;
+      margin-bottom: 2px;
+      color: #111827;
+    }
+
+    .donation-row-meta {
+      font-size: 0.8rem;
+      color: #6b7280;
+      margin-bottom: 4px;
+    }
+
+    .donation-row-meta span {
+      margin-right: 12px;
+    }
+
+    .donation-row-amount {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #4A249D;
+      text-align: right;
+      margin-bottom: 4px;
+    }
+
+    .donation-row-status {
+      font-size: 0.8rem;
+      color: #64748b;
+      text-align: right;
+    }
+
+    .donation-row-actions {
+      margin-top: 4px;
+      text-align: right;
+    }
+
+    .donation-row-actions button {
+      border: none;
+      background: none;
+      font-size: 0.85rem;
+      color: #1d4ed8;
+      cursor: pointer;
+      padding: 0;
+    }
+
+    .donation-row-actions button:hover {
+      text-decoration: underline;
+    }
+
+    @media (max-width: 640px) {
+      .donation-row-card {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .donation-row-amount,
+      .donation-row-status,
+      .donation-row-actions {
+        text-align: left;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page-content">
+  <nav class="navbar" style="display: flex; align-items: center; justify-content: space-between;">
+    <img src="SDP/logo.png" alt="Logo" class="nav-logo" style="height:40px; margin-right: 20px;">
+    <ul class="nav-links" id="nav-links" style="display: flex; justify-content: center; flex: 1; list-style: none; padding: 0; margin: 0;">
+      <li style="margin: 0 15px;"><a class="home">Home</a></li>
+      <li class="dropdown" style="margin: 0 15px;">
+        <a class="dropdown-toggle">Choose a cause</a>
+        <ul class="dropdown-menu">
+          <li><a class="donate">Donate</a></li>
+          <li><a class="yourDonations">Your donations</a></li>
+        </ul>
+      </li>
+      <li class="dropdown" style="margin: 0 15px;">
+        <a class="dropdown-toggle">Campaign</a>
+        <ul class="dropdown-menu">
+          <li><a class="createCampaign">Create a campaign</a></li>
+          <li><a class="yourCampaign">Your Campaigns</a></li>
+        </ul>
+      </li>
+    </ul>
+  </nav>
+
+  <div class="donation-header">
+    <h1>Your donations</h1>
+    <p>Track the campaigns you have supported and how much you contributed to each one.</p>
+  </div>
+
+  <div id="your-donations-message" class="dashboard-message"></div>
+
+  <div id="your-donations-list" class="donations-list">
+    <p style="color:#64748b; font-size:0.95rem;">Loading your donations.</p>
+  </div>
+  </div>
+  <div id="footer-placeholder"></div>
+
+  <script type="module" src="firebase.js"></script>
+  <script type="module" src="navbar.js"></script>
+  <script src="yourDonations.js"></script>
+  <script src="main.js"></script>
+  <script src="footer.js"></script>
+
+</body>
+</html>

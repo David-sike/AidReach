@@ -1,118 +1,227 @@
- // Campaign data 
-    const campaigns = {
-      1: {
-        title: "Leadership Initiatives Students Creating Change",
-        mainImage: "SDP/aid 4.jpg",
-        thumbnails: ["SDP/aid header 2.jpg", "SDP/aid 4.jpg", "SDP/aid header 3.jpg", "SDP/aid.jpg"],
-        overview: "Many families in Adamawa are currently struggling due to ongoing food shortages and economic hardship caused by conflict and displacement. Thousands of households lack access to daily meals, clean water, and basic healthcare",
-        challenge: "This campaign aims to provide emergency food packs, clean /water, and essential supplies to the most vulnerable communities, especially children and widows, helping them survive and rebuild hope during this difficult time.",
-        updates: "<strong>Date:</strong> 10 bags of rice have been bought so far, thank you to everyone who donated.",
-        raised: 5000,
-        goal: 80000,
-        donations: 4,
-        organizer: "David Sike",
-        startDate: "August 15, 2025"
-      },
-      2: {
-        title: "Help Nigerian Youth Achieve Their Educational Dreams",
-        mainImage: "SDP/aid.jpg",
-        thumbnails: ["SDP/aid header 2.jpg", "SDP/aid 4.jpg", "SDP/aid header 3.jpg", "SDP/aid.jpg"],
-        overview: "Many families in Adamawa are currently struggling due to ongoing food shortages and economic hardship caused by conflict and displacement. Thousands of households lack access to daily meals, clean water, and basic healthcare",
-        challenge: "This campaign aims to provide emergency food packs, clean /water, and essential supplies to the most vulnerable communities, especially children and widows, helping them survive and rebuild hope during this difficult time.",
-        updates: "<strong>Date:</strong> 10 bags of rice have been bought so far, thank you to everyone who donated.",
-        raised: 5000,
-        goal: 80000,
-        donations: 4,
-        organizer: "David Sike",
-        startDate: "August 15, 2025"
-      },
-      3: {
-        title: "Support for Displaced Families in Northern Nigeria",
-        mainImage: "SDP/aid header 2.jpg",
-        thumbnails: ["SDP/aid header 2.jpg", "SDP/aid 4.jpg", "SDP/aid header 3.jpg", "SDP/aid.jpg"],
-        overview: "Many families in Adamawa are currently struggling due to ongoing food shortages and economic hardship caused by conflict and displacement. Thousands of households lack access to daily meals, clean water, and basic healthcare",
-        challenge: "This campaign aims to provide emergency food packs, clean /water, and essential supplies to the most vulnerable communities, especially children and widows, helping them survive and rebuild hope during this difficult time.",
-        updates: "<strong>Date:</strong> 10 bags of rice have been bought so far, thank you to everyone who donated.",
-        raised: 5000,
-        goal: 80000,
-        donations: 4,
-        organizer: "David Sike",
-        startDate: "August 15, 2025"
-      },
-    4: {
-      title: "Adamawa: Individuals Distribute Rice to Displaced Individuals",
-      mainImage: "SDP/nigeria-9417.jpg",
-      thumbnails: ["SDP/aid header 2.jpg", "SDP/nigeria-9417.jpg", "SDP/aid header 3.jpg", "SDP/aid.jpg"],
-      overview: "Many families in Adamawa are currently struggling due to ongoing food shortages and economic hardship caused by conflict and displacement. Thousands of households lack access to daily meals, clean water, and basic healthcare",
-      challenge: "This campaign aims to provide emergency food packs, clean /water, and essential supplies to the most vulnerable communities, especially children and widows, helping them survive and rebuild hope during this difficult time.",
-      updates: "<strong>Date:</strong> 10 bags of rice have been bought so far, thank you to everyone who donated.",
-      raised: 5000,
-      goal: 80000,
-      donations: 4,
-      organizer: "David Sike",
-      startDate: "August 15, 2025"
-    },
-    5: {
-      title: "Help Nigerian Youth Pursue Vocational Studies",
-      mainImage: "SDP/pic.jpg",
-      thumbnails: ["SDP/aid header 2.jpg", "SDP/aid 4.jpg", "SDP/aid header 3.jpg", "SDP/aid.jpg"],
-      overview: "Many families in Adamawa are currently struggling due to ongoing food shortages and economic hardship caused by conflict and displacement. Thousands of households lack access to daily meals, clean water, and basic healthcare",
-      challenge: "This campaign aims to provide emergency food packs, clean /water, and essential supplies to the most vulnerable communities, especially children and widows, helping them survive and rebuild hope during this difficult time.",
-      updates: "<strong>Date:</strong> 10 bags of rice have been bought so far, thank you to everyone who donated.",
-      raised: 5000,
-      goal: 80000,
-      donations: 4,
-      organizer: "David Sike",
-      startDate: "August 15, 2025"
-    },
-    6: {
-      title: "Support for Displaced Families in Northern Nigeria",
-      mainImage: "SDP/nigeria-9417.jpg",
-      thumbnails: ["SDP/aid header 2.jpg", "SDP/nigeria-9417.jpg", "SDP/aid header 3.jpg", "SDP/aid.jpg"],
-      overview: "Many families in Adamawa are currently struggling due to ongoing food shortages and economic hardship caused by conflict and displacement. Thousands of households lack access to daily meals, clean water, and basic healthcare",
-      challenge: "This campaign aims to provide emergency food packs, clean /water, and essential supplies to the most vulnerable communities, especially children and widows, helping them survive and rebuild hope during this difficult time.",
-      updates: "<strong>Date:</strong> 10 bags of rice have been bought so far, thank you to everyone who donated.",
-      raised: 5000,
-      goal: 80000,
-      donations: 4,
-      organizer: "David Sike",
-      startDate: "August 15, 2025"
+// campaigns.js
+console.log("✅ campaigns.js loaded");
+
+document.addEventListener("DOMContentLoaded", async () => {
+  const FB = window.__FIREBASE__;
+  if (!FB) {
+    console.error("❌ Firebase not initialized");
+    return;
+  }
+
+  const { db, doc, getDoc } = FB;
+
+  // Get campaign ID from URL
+  const urlParams = new URLSearchParams(window.location.search);
+  const campaignId = urlParams.get("id");
+
+  if (!campaignId) {
+    console.error("❌ No campaign ID in URL");
+    return;
+  }
+
+  const docRef = doc(db, "campaigns", campaignId);
+
+  try {
+    const snap = await getDoc(docRef);
+
+    if (!snap.exists()) {
+      console.error("❌ Campaign not found");
+      return;
     }
-  };
 
-    // Get campaign ID from URL
-    const urlParams = new URLSearchParams(window.location.search);
-    const id = urlParams.get("id");
-    const campaign = campaigns[id];
+    const campaign = snap.data();
+    console.log("📄 Loaded campaign:", campaignId, campaign);
 
-    if (campaign) {
-      document.getElementById("campaign-title").textContent = campaign.title;
-      document.getElementById("startDate").textContent = campaign.startDate;
-      document.getElementById("main-image").src = campaign.mainImage;
-      document.getElementById("overview").textContent = campaign.overview;
-      document.getElementById("challenge").textContent = campaign.challenge;
-      document.getElementById("updates").innerHTML = campaign.updates;
-      document.getElementById("raised").textContent = `₦${campaign.raised.toLocaleString()}`;
-      document.getElementById("goal").textContent = `₦${campaign.goal.toLocaleString()}`;
-      document.getElementById("donations").textContent = `${campaign.donations} Donations`;
-      document.getElementById("organizer").textContent = campaign.organizer;
+    renderCampaign(campaignId, campaign);
+  } catch (err) {
+    console.error("❌ Failed to load campaign:", err);
+  }
+});
 
-      // Fill progress bar
-      const progressPercent = (campaign.raised / campaign.goal) * 100;
-      document.getElementById("progress-bar-fill").style.width = `${progressPercent}%`;
+function renderCampaign(campaignId, data) {
+  const {
+    title,
+    organizer,
+    summary,
+    location,
+    description,
+    goalAmount,
+    amountRaised = 0,
+    donationCount = 0,
+    startDate,
+    endDate,
+    coverImageUrl,
+    gallery = [],
+    updates = []
+  } = data;
 
-      // Thumbnails
-      const thumbsContainer = document.getElementById("thumbnails");
-      thumbsContainer.innerHTML = "";
-      campaign.thumbnails.forEach(src => {
-        const img = document.createElement("img");
-        img.src = src;
-        img.className = "img-thumbnail rounded";
-        img.style.width = "230px";
-        img.style.height = "230px";
-        img.style.objectFit = "cover";
-        thumbsContainer.appendChild(img);
+  // TITLE
+  const titleEl = document.getElementById("campaign-title");
+  if (titleEl) titleEl.textContent = title || "";
+
+  // MAIN IMAGE + THUMBNAILS
+  const mainImageEl = document.getElementById("main-image");
+  const thumbsEl = document.getElementById("thumbnails");
+
+  const allImages = [];
+  if (coverImageUrl) allImages.push(coverImageUrl);
+  if (Array.isArray(gallery)) {
+    gallery.forEach((url) => {
+      if (url && !allImages.includes(url)) allImages.push(url);
+    });
+  }
+
+  if (mainImageEl && allImages.length > 0) {
+    mainImageEl.src = allImages[0];
+  }
+
+  if (thumbsEl) {
+    thumbsEl.innerHTML = "";
+    allImages.forEach((url, index) => {
+      const img = document.createElement("img");
+      img.src = url;
+      img.alt = "Campaign image " + (index + 1);
+      img.style.height = "70px";
+      img.style.borderRadius = "6px";
+      img.style.cursor = "pointer";
+      img.style.border = "1px solid #e5e7eb";
+
+      img.addEventListener("click", () => {
+        if (mainImageEl) mainImageEl.src = url;
       });
+
+      thumbsEl.appendChild(img);
+    });
+  }
+
+  // OVERVIEW / DESCRIPTION
+  const overviewEl = document.getElementById("overview");
+  if (overviewEl) {
+    overviewEl.textContent = description || summary || "";
+  }
+
+  // LOCATION
+  const locationEl = document.getElementById("location");
+  if (locationEl) {
+    locationEl.textContent = location || "Location not specified";
+  }
+
+  // DATE LAUNCHED
+  const startDateEl = document.getElementById("startDate");
+  if (startDateEl) {
+    if (startDate) {
+      const d = new Date(startDate);
+      startDateEl.textContent = isNaN(d.getTime())
+        ? startDate
+        : d.toLocaleDateString("en-NG", {
+            year: "numeric",
+            month: "short",
+            day: "numeric"
+          });
     } else {
-      document.querySelector(".container").innerHTML = "<h2 class='text-center text-danger'>Campaign not found</h2>";
+      startDateEl.textContent = "Not specified";
     }
+  }
+
+  // ORGANIZER TEXT UNDER DONATE BOX
+  const organizerEl = document.getElementById("organizer");
+  if (organizerEl) {
+    organizerEl.textContent = organizer || "Organizer not specified";
+  }
+
+  // DONATION STATS
+  const raisedEl = document.getElementById("raised");
+  const goalEl = document.getElementById("goal");
+  const donationsEl = document.getElementById("donations");
+
+  if (raisedEl) raisedEl.textContent = `₦${(amountRaised || 0).toLocaleString()}`;
+  if (goalEl) goalEl.textContent = `₦${(goalAmount || 0).toLocaleString()}`;
+  if (donationsEl) {
+    const count = Number(donationCount || 0);
+    donationsEl.textContent = `${count} Donation${count === 1 ? "" : "s"}`;
+  }
+
+  // PROGRESS BAR
+  const progressFill = document.getElementById("progress-bar-fill");
+  if (progressFill && goalAmount > 0) {
+    const percent = Math.min(100, (amountRaised / goalAmount) * 100);
+    progressFill.style.width = `${percent.toFixed(0)}%`;
+  }
+
+  // UPDATES
+  const updatesEl = document.getElementById("updates");
+  if (updatesEl) {
+    const updatesArray = Array.isArray(updates) ? updates : [];
+
+    if (updatesArray.length === 0) {
+      updatesEl.innerHTML = `
+        <span class="text-muted" style="font-size:14px;">
+          No updates have been posted yet.
+        </span>
+      `;
+    } else {
+      // Newest first
+      const sorted = [...updatesArray].sort((a, b) => {
+        const ta = getUpdateTime(a);
+        const tb = getUpdateTime(b);
+        return tb - ta;
+      });
+
+      let html = "";
+      sorted.forEach((u) => {
+        const d = getUpdateDate(u);
+        const dateText = d
+          ? d.toLocaleDateString("en-NG", {
+              year: "numeric",
+              month: "short",
+              day: "numeric",
+              hour: "2-digit",
+              minute: "2-digit"
+            })
+          : "Date not available";
+
+        const safeText = (u.text || "").replace(/\n/g, "<br>");
+
+        html += `
+          <div class="mb-3 p-2 rounded" style="background:#f9fafb; border:1px solid #e5e7eb;">
+            <div style="font-size:12px; color:#6b7280; margin-bottom:4px;">
+              Posted on ${dateText}
+            </div>
+            <div style="font-size:14px; color:#111827;">
+              ${safeText}
+            </div>
+          </div>
+        `;
+      });
+
+      updatesEl.innerHTML = html;
+    }
+  }
+
+  // SET HIDDEN FIELD FOR DONATION
+  const hiddenId = document.getElementById("campaign-id");
+  if (hiddenId) hiddenId.value = campaignId;
+}
+
+// helpers for updates
+function getUpdateTime(u) {
+  if (!u || !u.createdAt) return 0;
+
+  if (u.createdAt.toDate) {
+    return u.createdAt.toDate().getTime();
+  }
+
+  const d = new Date(u.createdAt);
+  return isNaN(d.getTime()) ? 0 : d.getTime();
+}
+
+function getUpdateDate(u) {
+  if (!u || !u.createdAt) return null;
+
+  if (u.createdAt.toDate) {
+    return u.createdAt.toDate();
+  }
+
+  const d = new Date(u.createdAt);
+  return isNaN(d.getTime()) ? null : d;
+}
